@@ -19,6 +19,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <script
+        defer
+        data-website-id="dfid_p36MUe7umZldomrEKtBko"
+        data-domain="vibestatss.com"
+        src="https://datafa.st/js/script.js">
+      </script>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
