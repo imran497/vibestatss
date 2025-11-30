@@ -264,14 +264,14 @@ export default function RightPanel({ config, fonts }) {
     : { backgroundColor: config.style.background.color1 };
 
   return (
-    <div className="flex flex-col items-center gap-8 w-full h-full justify-center px-4">
+    <div className="flex flex-col items-center gap-6 lg:gap-8 w-full h-full justify-center px-4 py-8 lg:py-0">
       {/* Card Glow Effect */}
-      <div className="relative group w-[600px] h-auto">
-        <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-[2rem] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+      <div className="relative group w-full max-w-[600px] lg:w-[600px] h-auto">
+        <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl lg:rounded-[2rem] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
 
         <div
           ref={previewRef}
-          className={`w-[600px] aspect-[16/9] rounded-[1.8rem] flex items-center justify-center shadow-2xl overflow-hidden relative ring-1 ring-white/10 ${fonts[config.style.font]}`}
+          className={`w-full max-w-[600px] lg:w-[600px] aspect-[16/9] rounded-2xl lg:rounded-[1.8rem] flex items-center justify-center shadow-2xl overflow-hidden relative ring-1 ring-white/10 ${fonts[config.style.font]}`}
           style={bgStyle}
         >
           {/* Background Pattern */}
@@ -292,18 +292,18 @@ export default function RightPanel({ config, fonts }) {
         </div>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-3 lg:gap-4 flex-wrap justify-center">
         <button
           onClick={() => setResetKey(prev => prev + 1)}
-          className="px-6 py-4 text-primary-foreground bg-slate-800 rounded-full font-bold text-lg hover:bg-primary/90 transition-all backdrop-blur-sm cursor-pointer"
+          className="px-4 lg:px-6 py-3 lg:py-4 text-primary-foreground bg-slate-800 rounded-full font-bold text-base lg:text-lg hover:bg-primary/90 transition-all backdrop-blur-sm cursor-pointer"
         >
-          <RefreshCcw />
+          <RefreshCcw className="w-5 h-5 lg:w-6 lg:h-6" />
         </button>
 
         <button
           onClick={handleExport}
           disabled={isExporting}
-          className="group relative px-8 py-4 bg-white text-black rounded-full font-bold text-lg shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="group relative px-6 lg:px-8 py-3 lg:py-4 bg-white text-black rounded-full font-bold text-base lg:text-lg shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-10 transition-opacity rounded-full"></div>
           <span className="relative z-10 flex items-center gap-2">
@@ -311,8 +311,9 @@ export default function RightPanel({ config, fonts }) {
               'Exporting...'
             ) : (
               <>
-                <Download size={20} />
-                Export MP4
+                <Download size={18} className="lg:w-5 lg:h-5" />
+                <span className="hidden sm:inline">Export MP4</span>
+                <span className="sm:hidden">Export</span>
               </>
             )}
           </span>

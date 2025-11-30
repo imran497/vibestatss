@@ -56,9 +56,14 @@ export default function Followers({ templateId = 1, templateName = 'Number Miles
   });
 
   return (
-    <main className={`flex h-screen overflow-hidden ${outfit.className}`}>
+    <main className={`flex flex-col lg:flex-row min-h-screen lg:h-screen lg:overflow-hidden ${outfit.className}`}>
+      {/* Desktop Recommendation Banner - Mobile Only */}
+      <div className="lg:hidden bg-primary/10 border-b border-primary/20 px-4 py-3 text-sm text-center sticky top-0 z-50">
+        💡 <span className="font-medium">Best viewed on desktop</span> for the full experience
+      </div>
+
       {/* Left Panel: Configuration */}
-      <div className="w-[400px] h-screen border-r border-border bg-card overflow-y-auto flex-shrink-0">
+      <div className="w-full lg:w-[400px] h-auto lg:h-screen border-b lg:border-b-0 lg:border-r border-border bg-card lg:overflow-y-auto flex-shrink-0">
         {/* Logo */}
         <div className="sticky top-0 bg-card z-10 px-8 py-6 border-b border-border">
           <Link href="/" className="flex items-center gap-2 group">
@@ -80,7 +85,7 @@ export default function Followers({ templateId = 1, templateName = 'Number Miles
       </div>
 
       {/* Right Panel: Preview */}
-      <div className="flex-1 flex items-center justify-center relative overflow-hidden bg-background">
+      <div className="flex-1 flex items-center justify-center relative lg:overflow-hidden bg-background min-h-[600px] lg:min-h-0">
         {/* Ambient Background Effects */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-500/10 blur-[120px]" />
@@ -90,7 +95,7 @@ export default function Followers({ templateId = 1, templateName = 'Number Miles
         {/* Grid Pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
-        <div className="relative z-10">
+        <div className="relative z-10 w-full">
           <RightPanel config={config} fonts={fonts} />
         </div>
       </div>
