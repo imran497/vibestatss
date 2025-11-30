@@ -96,6 +96,11 @@ export default function TermsPage() {
       {/* Footer */}
       <footer className="border-t border-border py-12 px-8">
         <div className="max-w-6xl mx-auto text-center text-muted-foreground">
+          <div className="mb-4">
+            <Link href="/contact" className="text-primary hover:underline">
+              Contact Us
+            </Link>
+          </div>
           <p>&copy; {new Date().getFullYear()} <span className="font-semibold">VibeStatss</span>. All rights reserved.</p>
         </div>
       </footer>

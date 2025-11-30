@@ -142,6 +142,9 @@ export default function LandingPage() {
                             &copy; {new Date().getFullYear()} <span className="font-semibold">VibeStatss</span>. All rights reserved.
                         </p>
                         <div className="flex items-center gap-6">
+                            <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                                Contact Us
+                            </Link>
                             <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                                 Privacy Policy
                             </Link>

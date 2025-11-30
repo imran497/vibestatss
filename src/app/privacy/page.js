@@ -98,9 +98,55 @@ export default function PrivacyPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-3xl font-semibold mb-4">9. Contact Us</h2>
+              <h2 className="text-3xl font-semibold mb-4">9. Cancellation & Refund Policy</h2>
               <p className="text-muted-foreground mb-4">
-                If you have any questions about this Privacy Policy or how we handle your data, please contact us through our website.
+                We want you to be satisfied with our service. Here's our policy regarding cancellations and refunds:
+              </p>
+
+              <h3 className="text-2xl font-semibold mb-3 mt-6">Subscription Cancellation</h3>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
+                <li>You can cancel your subscription at any time from your account settings</li>
+                <li>Upon cancellation, you will retain access to premium features until the end of your current billing period</li>
+                <li>No partial refunds will be issued for unused time in the current billing cycle</li>
+                <li>Cancelled subscriptions will not auto-renew</li>
+              </ul>
+
+              <h3 className="text-2xl font-semibold mb-3 mt-6">Refund Policy</h3>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
+                <li><strong>14-Day Money-Back Guarantee:</strong> If you're not satisfied with our service, you can request a full refund within 14 days of your initial purchase</li>
+                <li><strong>Refund Processing:</strong> Approved refunds will be processed within 5-10 business days to your original payment method</li>
+                <li><strong>Eligibility:</strong> To be eligible for a refund, you must contact us within the 14-day window with a valid reason</li>
+                <li><strong>Recurring Charges:</strong> Subsequent billing cycles are non-refundable. Please cancel before the renewal date to avoid charges</li>
+              </ul>
+
+              <h3 className="text-2xl font-semibold mb-3 mt-6">How to Request a Refund</h3>
+              <p className="text-muted-foreground mb-4">
+                To request a refund or cancel your subscription, please contact our support team at{' '}
+                <a href="mailto:support@vibestatss.com" className="text-primary hover:underline">
+                  support@vibestatss.com
+                </a>{' '}
+                with your account details and reason for cancellation.
+              </p>
+
+              <h3 className="text-2xl font-semibold mb-3 mt-6">Exceptions</h3>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+                <li>Violation of our Terms of Service may result in immediate cancellation without refund</li>
+                <li>Fraudulent purchases or chargebacks will result in permanent account suspension</li>
+                <li>Promotional or discounted subscriptions may have different refund terms as specified at the time of purchase</li>
+              </ul>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-3xl font-semibold mb-4">10. Contact Us</h2>
+              <p className="text-muted-foreground mb-4">
+                If you have any questions about this Privacy Policy or how we handle your data, please contact us at{' '}
+                <a href="/contact" className="text-primary hover:underline">
+                  our contact page
+                </a>{' '}
+                or email us at{' '}
+                <a href="mailto:support@vibestatss.com" className="text-primary hover:underline">
+                  support@vibestatss.com
+                </a>.
               </p>
             </section>
           </div>
@@ -116,6 +162,11 @@ export default function PrivacyPage() {
       {/* Footer */}
       <footer className="border-t border-border py-12 px-8">
         <div className="max-w-6xl mx-auto text-center text-muted-foreground">
+          <div className="mb-4">
+            <Link href="/contact" className="text-primary hover:underline">
+              Contact Us
+            </Link>
+          </div>
           <p>&copy; {new Date().getFullYear()} <span className="font-semibold">VibeStatss</span>. All rights reserved.</p>
         </div>
       </footer>
