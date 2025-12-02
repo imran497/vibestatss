@@ -1,3 +1,4 @@
+import Script from 'next/script'
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -30,6 +31,7 @@ export default function RootLayout({ children }) {
       >
         {children}
       </body>
+      <Script src="https://scripts.simpleanalyticscdn.com/latest.js"  />
     </html>
   );
 }
