@@ -1,15 +1,57 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Outfit } from 'next/font/google';
 import Header from './components/Header';
 import { Button } from './components/ui/button';
 import { Sparkles, Zap, Video, Download } from 'lucide-react';
 import Link from 'next/link';
 import VideoCarousel from './components/VideoCarousel';
+import { useAuth } from './hooks/useAuth';
 
 const outfit = Outfit({ subsets: ['latin'] });
 
 export default function LandingPage() {
+    const router = useRouter();
+    const { user, loading } = useAuth();
+    const [isRedirecting, setIsRedirecting] = useState(false);
+
+    // Check localStorage immediately for faster redirect
+    useEffect(() => {
+        const checkLocalAuth = () => {
+            // Check if user data exists in localStorage
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                setIsRedirecting(true);
+                router.push('/creator/2');
+            }
+        };
+        checkLocalAuth();
+    }, [router]);
+
+    // Also check when useAuth hook loads
+    useEffect(() => {
+        if (!loading && user) {
+            // Store user in localStorage for faster future checks
+            localStorage.setItem('user', JSON.stringify(user));
+            setIsRedirecting(true);
+            router.push('/creator/2');
+        } else if (!loading && !user) {
+            // Clear localStorage if no user
+            localStorage.removeItem('user');
+        }
+    }, [user, loading, router]);
+
+    // Show loading state while redirecting
+    if (isRedirecting || loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-muted-foreground">Loading...</p>
+            </div>
+        );
+    }
+
     return (
         <main className={`min-h-screen bg-background ${outfit.className}`}>
             <Header />

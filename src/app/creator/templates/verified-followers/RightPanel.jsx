@@ -41,8 +41,8 @@ export default function RightPanel({ config, fonts }) {
     } catch (err) {
       console.error("❌ Export failed:", err);
 
-      if (err.message === 'MP4_NOT_SUPPORTED') {
-        alert('MP4 export is not supported in your browser. Please try using Chrome or Edge.');
+      if (err.message === 'MP4_NOT_SUPPORTED' || err.message?.includes('Video Encoder') || err.message?.includes('VideoEncoder')) {
+        alert('Video export is only available on desktop browsers.\n\nPlease use Chrome, Edge, or Firefox on a desktop/laptop to export your video.');
       } else {
         alert(`Export failed: ${err.message}\n\nCheck console for details.`);
       }
