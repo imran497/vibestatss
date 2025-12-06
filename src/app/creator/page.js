@@ -7,8 +7,8 @@ export default function CreatorPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect to default template (ID: 1 - Follower Count)
-    router.replace('/creator/1');
+    // Redirect to default template (ID: 2 - X Verified Followers)
+    router.replace('/creator/2');
   }, [router]);
 
   return (

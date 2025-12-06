@@ -26,10 +26,18 @@ export function useAuth() {
         const data = await response.json();
         setUser(data.user);
         setError(null);
+        // Store user in localStorage for faster auth checks
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
       } else if (response.status === 401) {
         // Not authenticated
         setUser(null);
         setError(null);
+        // Clear localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('user');
+        }
       } else {
         throw new Error('Failed to fetch user');
       }
@@ -37,6 +45,10 @@ export function useAuth() {
       console.error('Error fetching user:', err);
       setError(err.message);
       setUser(null);
+      // Clear localStorage on error
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user');
+      }
     } finally {
       setLoading(false);
     }
@@ -49,6 +61,10 @@ export function useAuth() {
         credentials: 'include',
       });
       setUser(null);
+      // Clear localStorage on logout
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user');
+      }
       window.location.href = '/login';
     } catch (err) {
       console.error('Logout error:', err);
