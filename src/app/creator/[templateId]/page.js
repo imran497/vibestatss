@@ -3,6 +3,7 @@
 import { use } from 'react';
 import { redirect } from 'next/navigation';
 import Followers from '../templates/followers';
+import XVerifiedFollowers from '../templates/verified-followers';
 
 // Template registry - maps template IDs to their components
 const TEMPLATES = {
@@ -12,13 +13,12 @@ const TEMPLATES = {
     name: 'Number Milestone',
     component: Followers,
   },
-  // Future templates will be added here
-  // '2': {
-  //   id: 2,
-  //   slug: 'daily-update',
-  //   name: 'Daily Update',
-  //   component: DailyUpdate,
-  // },
+  '2': {
+    id: 2,
+    slug: 'verified-followers',
+    name: 'X Verified Followers',
+    component: XVerifiedFollowers,
+  },
 };
 
 export default function TemplatePage({ params }) {
