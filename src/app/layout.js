@@ -15,23 +15,31 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "VibeStatss - Create Stunning Social Media Videos",
   description: "Transform your milestones into engaging videos. Create professional follower count animations, stats videos, and more with customizable templates and stunning effects.",
+  icons: {
+    icon: '/favicon.png',
+    apple: '/favicon.png',
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <script
-        defer
-        data-website-id="dfid_p36MUe7umZldomrEKtBko"
-        data-domain="vibestatss.com"
-        src="https://datafa.st/js/script.js">
-      </script>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <Script
+          defer
+          data-website-id="dfid_p36MUe7umZldomrEKtBko"
+          data-domain="vibestatss.com"
+          src="https://datafa.st/js/script.js"
+          strategy="afterInteractive"
+        />
+        <Script
+          src="https://scripts.simpleanalyticscdn.com/latest.js"
+          strategy="afterInteractive"
+        />
       </body>
-      <Script src="https://scripts.simpleanalyticscdn.com/latest.js"  />
     </html>
   );
 }

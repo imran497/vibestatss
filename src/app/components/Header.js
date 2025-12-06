@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
-import { TrendingUp } from 'lucide-react';
 import Link from 'next/link';
-import { Space_Grotesk } from 'next/font/google';
-
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] });
+import Image from 'next/image';
+import UserDropdown from './UserDropdown';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
+    const { user, loading } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -39,11 +39,15 @@ export default function Header() {
                 `}
             >
                 <div className="flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2 group">
-                        <TrendingUp className="w-6 h-6 text-foreground group-hover:translate-y-[-2px] transition-transform" />
-                        <span className={`text-2xl font-bold tracking-tight text-foreground ${spaceGrotesk.className}`}>
-                            VibeStatss
-                        </span>
+                    <Link href="/" className="group">
+                        <Image
+                            src="/VibeLogo_black.svg"
+                            alt="VibeStatss"
+                            width={150}
+                            height={40}
+                            className="h-8 w-auto group-hover:opacity-80 transition-opacity"
+                            priority
+                        />
                     </Link>
 
                     <nav className="hidden md:flex items-center gap-8">
@@ -56,9 +60,15 @@ export default function Header() {
                     </nav>
 
                     <div className="flex items-center gap-4">
-                        <Link href="/creator">
-                            <Button>Get Started</Button>
-                        </Link>
+                        {!loading && (
+                            user ? (
+                                <UserDropdown position="bottom" />
+                            ) : (
+                                <Link href="/login">
+                                    <Button>Get Started</Button>
+                                </Link>
+                            )
+                        )}
                     </div>
                 </div>
             </div>

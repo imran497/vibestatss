@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { X, TrendingUp, Check } from 'lucide-react';
+import { X, TrendingUp, Check, BadgeCheck } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import FollowerCountPreview from '../templateModalPreview/FollowerCountPreview';
 
@@ -13,14 +13,13 @@ const AVAILABLE_TEMPLATES = [
     icon: TrendingUp,
     isActive: true,
   },
-  // Future templates can be added here
-  // {
-  //   id: 2,
-  //   name: 'Daily Update',
-  //   description: 'Progress tracking with style',
-  //   icon: Calendar,
-  //   isActive: false,
-  // },
+  {
+    id: 2,
+    name: 'X Verified Followers',
+    description: 'Showcase verified follower stats',
+    icon: BadgeCheck,
+    isActive: true,
+  },
 ];
 
 export default function TemplateSelectorModal({ isOpen, onClose, currentTemplate = 1 }) {
@@ -97,6 +96,14 @@ export default function TemplateSelectorModal({ isOpen, onClose, currentTemplate
                     {/* Follower Count Preview */}
                     {template.id === 1 && (
                       <FollowerCountPreview isVisible={isOpen} />
+                    )}
+
+                    {/* X Verified Followers Preview */}
+                    {template.id === 2 && (
+                      <div className="flex items-center gap-3 text-white">
+                        <BadgeCheck className="w-8 h-8" style={{ color: 'rgb(30, 156, 241)' }} />
+                        <div className="text-4xl font-bold">850 / 1000</div>
+                      </div>
                     )}
 
                     {/* Overlay gradient for title readability */}

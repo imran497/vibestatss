@@ -1,0 +1,12 @@
+<svg width="200" height="40" viewBox="0 0 200 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- TrendingUp Icon -->
+  <g transform="translate(0, 8)">
+    <path d="M22 7L13.5 15.5L8.5 10.5L2 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="16 7 22 7 22 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- VibeStatss Text -->
+  <text x="32" y="27" font-family="'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="700" fill="currentColor" letter-spacing="-0.02em">
+    VibeStatss
+  </text>
+</svg>
