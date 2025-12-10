@@ -4,6 +4,7 @@ import { use } from 'react';
 import { redirect } from 'next/navigation';
 import Followers from '../templates/followers';
 import XVerifiedFollowers from '../templates/verified-followers';
+import XAnalytics from '../templates/x-analytics';
 
 // Template registry - maps template IDs to their components
 const TEMPLATES = {
@@ -18,6 +19,12 @@ const TEMPLATES = {
     slug: 'verified-followers',
     name: 'X Verified Followers',
     component: XVerifiedFollowers,
+  },
+  '3': {
+    id: 3,
+    slug: 'x-analytics',
+    name: 'X Analytics',
+    component: XAnalytics,
   },
 };
 
