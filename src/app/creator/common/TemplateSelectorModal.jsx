@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { X, TrendingUp, Check, BadgeCheck } from 'lucide-react';
+import { X, TrendingUp, Check, BadgeCheck, BarChart3 } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import FollowerCountPreview from '../templateModalPreview/FollowerCountPreview';
 
@@ -18,6 +18,13 @@ const AVAILABLE_TEMPLATES = [
     name: 'X Verified Followers',
     description: 'Showcase verified follower stats',
     icon: BadgeCheck,
+    isActive: true,
+  },
+  {
+    id: 3,
+    name: 'X Analytics',
+    description: 'Showcase your X (Twitter) analytics with stunning cards',
+    icon: BarChart3,
     isActive: true,
   },
 ];
@@ -103,6 +110,28 @@ export default function TemplateSelectorModal({ isOpen, onClose, currentTemplate
                       <div className="flex items-center gap-3 text-white">
                         <BadgeCheck className="w-8 h-8" style={{ color: 'rgb(30, 156, 241)' }} />
                         <div className="text-4xl font-bold">850 / 1000</div>
+                      </div>
+                    )}
+
+                    {/* X Analytics Preview */}
+                    {template.id === 3 && (
+                      <div className="grid grid-cols-2 gap-2 px-4">
+                        <div className="bg-gray-800/80 rounded-lg p-2 border border-gray-700">
+                          <div className="text-xs text-gray-400">Impressions</div>
+                          <div className="text-lg font-bold text-white">3.2k</div>
+                        </div>
+                        <div className="bg-gray-800/80 rounded-lg p-2 border border-gray-700">
+                          <div className="text-xs text-gray-400">Engagements</div>
+                          <div className="text-lg font-bold text-white">422</div>
+                        </div>
+                        <div className="bg-gray-800/80 rounded-lg p-2 border border-gray-700">
+                          <div className="text-xs text-gray-400">Likes</div>
+                          <div className="text-lg font-bold text-white">155</div>
+                        </div>
+                        <div className="bg-gray-800/80 rounded-lg p-2 border border-gray-700">
+                          <div className="text-xs text-gray-400">Replies</div>
+                          <div className="text-lg font-bold text-white">114</div>
+                        </div>
                       </div>
                     )}
 

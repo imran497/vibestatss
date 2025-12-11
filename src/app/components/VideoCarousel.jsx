@@ -7,6 +7,7 @@ const videos = [
   { id: 1, src: '/landing/vid1.mp4', title: 'Example 1' },
   { id: 2, src: '/landing/vid2.mp4', title: 'Example 2' },
   { id: 3, src: '/landing/vid3.mp4', title: 'Example 3' },
+  { id: 4, src: '/landing/vid4.mp4', title: 'Example 4' },
 ];
 
 export default function VideoCarousel() {
@@ -55,9 +56,8 @@ export default function VideoCarousel() {
           <video
             key={video.id}
             ref={(el) => (videoRefs.current[index] = el)}
-            className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-500 ${
-              index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            }`}
+            className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-500 ${index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              }`}
             src={video.src}
             onEnded={handleVideoEnd}
             playsInline
@@ -89,11 +89,10 @@ export default function VideoCarousel() {
             <button
               key={video.id}
               onClick={() => setCurrentIndex(index)}
-              className={`h-2 rounded-full transition-all ${
-                index === currentIndex
-                  ? 'w-8 bg-white'
-                  : 'w-2 bg-white/50 hover:bg-white/75'
-              }`}
+              className={`h-2 rounded-full transition-all ${index === currentIndex
+                ? 'w-8 bg-white'
+                : 'w-2 bg-white/50 hover:bg-white/75'
+                }`}
               aria-label={`Go to video ${index + 1}`}
             />
           ))}
