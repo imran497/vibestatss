@@ -2,14 +2,14 @@
 
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 
-export default function GoogleAnalytics({ GA_MEASUREMENT_ID }) {
+function GoogleAnalyticsTracker({ GA_MEASUREMENT_ID }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!GA_MEASUREMENT_ID) return;
+    if (!GA_MEASUREMENT_ID || !window.gtag) return;
 
     const url = pathname + searchParams.toString();
 
@@ -19,6 +19,10 @@ export default function GoogleAnalytics({ GA_MEASUREMENT_ID }) {
     });
   }, [pathname, searchParams, GA_MEASUREMENT_ID]);
 
+  return null;
+}
+
+export default function GoogleAnalytics({ GA_MEASUREMENT_ID }) {
   if (!GA_MEASUREMENT_ID) {
     return null;
   }
@@ -43,6 +47,9 @@ export default function GoogleAnalytics({ GA_MEASUREMENT_ID }) {
           `,
         }}
       />
+      <Suspense fallback={null}>
+        <GoogleAnalyticsTracker GA_MEASUREMENT_ID={GA_MEASUREMENT_ID} />
+      </Suspense>
     </>
   );
 }
