@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { X, TrendingUp, Check, BadgeCheck, BarChart3 } from 'lucide-react';
+import { X, TrendingUp, Check, BadgeCheck, BarChart3, Type } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import FollowerCountPreview from '../templateModalPreview/FollowerCountPreview';
 
@@ -25,6 +25,13 @@ const AVAILABLE_TEMPLATES = [
     name: 'X Analytics',
     description: 'Showcase your X (Twitter) analytics with stunning cards',
     icon: BarChart3,
+    isActive: true,
+  },
+  {
+    id: 4,
+    name: 'Text Videos',
+    description: 'Create animated text videos with custom styling and effects',
+    icon: Type,
     isActive: true,
   },
 ];
@@ -131,6 +138,18 @@ export default function TemplateSelectorModal({ isOpen, onClose, currentTemplate
                         <div className="bg-gray-800/80 rounded-lg p-2 border border-gray-700">
                           <div className="text-xs text-gray-400">Replies</div>
                           <div className="text-lg font-bold text-white">114</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Daily Update Preview */}
+                    {template.id === 4 && (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-center">
+                          <h2 className="text-3xl font-bold text-white bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                            Day 1
+                          </h2>
+                          <p className="text-sm text-gray-400 mt-2">of Building</p>
                         </div>
                       </div>
                     )}

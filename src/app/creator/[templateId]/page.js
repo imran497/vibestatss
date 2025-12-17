@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import Followers from '../templates/followers';
 import XVerifiedFollowers from '../templates/verified-followers';
 import XAnalytics from '../templates/x-analytics';
+import DailyUpdate from '../templates/daily-update';
 
 // Template registry - maps template IDs to their components
 const TEMPLATES = {
@@ -25,6 +26,12 @@ const TEMPLATES = {
     slug: 'x-analytics',
     name: 'X Analytics',
     component: XAnalytics,
+  },
+  '4': {
+    id: 4,
+    slug: 'daily-update',
+    name: 'Text Videos',
+    component: DailyUpdate,
   },
 };
 
