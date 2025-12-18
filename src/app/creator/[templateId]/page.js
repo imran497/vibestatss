@@ -6,6 +6,7 @@ import Followers from '../templates/followers';
 import XVerifiedFollowers from '../templates/verified-followers';
 import XAnalytics from '../templates/x-analytics';
 import DailyUpdate from '../templates/daily-update';
+import GitHubHeatmap from '../templates/github-heatmap';
 
 // Template registry - maps template IDs to their components
 const TEMPLATES = {
@@ -32,6 +33,12 @@ const TEMPLATES = {
     slug: 'daily-update',
     name: 'Text Videos',
     component: DailyUpdate,
+  },
+  '5': {
+    id: 5,
+    slug: 'github-heatmap',
+    name: 'GitHub Heatmap',
+    component: GitHubHeatmap,
   },
 };
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { X, TrendingUp, Check, BadgeCheck, BarChart3, Type } from 'lucide-react';
+import { X, TrendingUp, Check, BadgeCheck, BarChart3, Type, GitBranch } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import FollowerCountPreview from '../templateModalPreview/FollowerCountPreview';
 
@@ -32,6 +32,13 @@ const AVAILABLE_TEMPLATES = [
     name: 'Text Videos',
     description: 'Create animated text videos with custom styling and effects',
     icon: Type,
+    isActive: true,
+  },
+  {
+    id: 5,
+    name: 'GitHub Heatmap',
+    description: 'Animated GitHub contribution heatmap with bubble pop effects',
+    icon: GitBranch,
     isActive: true,
   },
 ];
@@ -150,6 +157,25 @@ export default function TemplateSelectorModal({ isOpen, onClose, currentTemplate
                             Day 1
                           </h2>
                           <p className="text-sm text-gray-400 mt-2">of Building</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* GitHub Heatmap Preview */}
+                    {template.id === 5 && (
+                      <div className="flex items-center justify-center h-full p-4">
+                        <div className="grid grid-cols-7 gap-1">
+                          {[...Array(35)].map((_, i) => {
+                            const colors = ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'];
+                            const colorIndex = Math.floor(Math.random() * colors.length);
+                            return (
+                              <div
+                                key={i}
+                                className="w-2 h-2 rounded-sm"
+                                style={{ backgroundColor: colors[colorIndex] }}
+                              />
+                            );
+                          })}
                         </div>
                       </div>
                     )}
