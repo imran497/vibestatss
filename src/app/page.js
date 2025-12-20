@@ -19,7 +19,7 @@ export default function LandingPage() {
             <Header />
 
             {/* --- HERO SECTION --- */}
-            <section className="relative pt-24 pb-20 lg:pt-36 lg:pb-32 px-6 overflow-hidden">
+            <section className="relative pt-24 pb-8 lg:pt-36 lg:pb-12 px-6 overflow-hidden">
                 {/* Sophisticated Background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50" />
 
@@ -265,7 +265,7 @@ export default function LandingPage() {
                     initial={{ opacity: 0, y: 60 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.6, type: "spring", stiffness: 50 }}
-                    className="mt-24 relative z-10"
+                    className="mt-16 relative z-10"
                 >
                     <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white/40 to-transparent z-20 pointer-events-none" />
                     <VideoCarousel />
@@ -273,15 +273,19 @@ export default function LandingPage() {
             </section>
 
             {/* --- SOCIAL PROOF --- */}
-            <section className="py-12 border-y border-gray-100 bg-gray-50/50">
+            <section className="py-6 border-y border-gray-100 bg-gray-50/50">
                 <div className="max-w-7xl mx-auto px-6 text-center">
-                    <p className="text-sm font-semibold text-gray-500 mb-8 uppercase tracking-widest">Trusted by developers from</p>
-                    <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-                        <span className="text-xl font-bold font-mono text-gray-800">GitHub</span>
-                        <span className="text-xl font-bold font-sans text-gray-800">Vercel</span>
-                        <span className="text-xl font-bold font-serif text-gray-800">Stripe</span>
-                        <span className="text-xl font-bold font-sans tracking-tighter text-gray-800">Linear</span>
-                        <span className="text-xl font-bold font-mono text-gray-800">Raycast</span>
+                    {/* Featured On Badges */}
+                    <div>
+                        <p className="text-xs font-semibold text-gray-400 mb-6 uppercase tracking-widest">Featured on</p>
+                        <div className="flex flex-wrap justify-center items-center gap-6">
+                            <a href="https://twelve.tools" target="_blank" rel="noopener noreferrer">
+                                <img src="https://twelve.tools/badge0-white.svg" alt="Featured on Twelve Tools" width="180" height="48" className="transition-opacity hover:opacity-80" />
+                            </a>
+                            <a href="https://wired.business" target="_blank" rel="noopener noreferrer">
+                                <img src="https://wired.business/badge0-white.svg" alt="Featured on Wired Business" width="180" height="48" className="transition-opacity hover:opacity-80" />
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
