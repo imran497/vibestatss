@@ -83,8 +83,12 @@ export async function GET(request) {
     // Clean up OAuth cookies
     cookieStore.delete('google_state');
 
-    // Redirect to creator page or dashboard
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/creator`);
+    // Get return URL from cookie
+    const returnUrl = cookieStore.get('return_url')?.value || '/creator';
+    cookieStore.delete('return_url');
+
+    // Redirect to return URL or creator page
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}${returnUrl}`);
   } catch (error) {
     console.error('Google callback error:', error);
     console.error('Error details:', {

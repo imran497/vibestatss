@@ -3,23 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Outfit, Inter, Playfair_Display, Space_Mono } from 'next/font/google';
+import { Outfit } from 'next/font/google';
 import LeftPanel from '@/app/creator/templates/followers/LeftPanel';
 import RightPanel from '@/app/creator/templates/followers/RightPanel';
 import UserDropdown from '@/app/components/UserDropdown';
 import MobileMenu from '@/app/components/MobileMenu';
 
 const outfit = Outfit({ subsets: ['latin'] });
-const inter = Inter({ subsets: ['latin'] });
-const playfair = Playfair_Display({ subsets: ['latin'] });
-const spaceMono = Space_Mono({ weight: ['400', '700'], subsets: ['latin'] });
-
-export const fonts = {
-  'Outfit': outfit.className,
-  'Inter': inter.className,
-  'Playfair': playfair.className,
-  'Space Mono': spaceMono.className,
-};
 
 export default function Followers({ templateId = 1, templateName = 'Number Milestone' }) {
   const [showMobileEdit, setShowMobileEdit] = useState(false);
@@ -157,7 +147,7 @@ export default function Followers({ templateId = 1, templateName = 'Number Miles
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
         <div className="relative z-10 w-full">
-          <RightPanel config={config} fonts={fonts} />
+          <RightPanel config={config} />
         </div>
       </div>
     </main>

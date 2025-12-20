@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const animationVariants = {
@@ -56,12 +56,30 @@ const wordVariants = {
 export default function VideoBox({ config }) {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [animationKey, setAnimationKey] = useState(0);
+  const [scaleFactor, setScaleFactor] = useState(1);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     // Reset animation when config changes
     setCurrentSlideIndex(0);
     setAnimationKey(prev => prev + 1);
   }, [config]);
+
+  // Calculate scale factor based on container height (matches export logic)
+  useEffect(() => {
+    const updateScaleFactor = () => {
+      if (containerRef.current) {
+        const REFERENCE_HEIGHT = 400; // Same as video-recorder.js
+        const actualHeight = containerRef.current.offsetHeight;
+        const newScaleFactor = actualHeight / REFERENCE_HEIGHT;
+        setScaleFactor(newScaleFactor);
+      }
+    };
+
+    updateScaleFactor();
+    window.addEventListener('resize', updateScaleFactor);
+    return () => window.removeEventListener('resize', updateScaleFactor);
+  }, [config.export.width, config.export.height]);
 
   useEffect(() => {
     if (config.textSlides.length === 0) return;
@@ -124,12 +142,17 @@ export default function VideoBox({ config }) {
   return (
     <div className="w-full max-w-5xl mx-auto">
       <div
+        ref={containerRef}
         className="relative overflow-hidden rounded-2xl shadow-2xl"
         style={{
           ...bgStyle,
           aspectRatio: `${config.export.width} / ${config.export.height}`,
         }}
       >
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
+
         {/* Content Container */}
         <div className="absolute inset-0 flex items-center justify-center px-16 py-8">
           <AnimatePresence mode="wait">
@@ -149,13 +172,13 @@ export default function VideoBox({ config }) {
                       src={currentSlide.emoji}
                       alt="Custom icon"
                       style={{
-                        width: `${currentSlide.emojiSize || 60}px`,
-                        height: `${currentSlide.emojiSize || 60}px`,
+                        width: `${(currentSlide.emojiSize || 60) * scaleFactor}px`,
+                        height: `${(currentSlide.emojiSize || 60) * scaleFactor}px`,
                         objectFit: 'contain',
                       }}
                     />
                   ) : (
-                    <span style={{ fontSize: `${currentSlide.emojiSize || 60}px` }}>
+                    <span style={{ fontSize: `${(currentSlide.emojiSize || 60) * scaleFactor}px` }}>
                       {currentSlide.emoji}
                     </span>
                   )}
@@ -167,7 +190,7 @@ export default function VideoBox({ config }) {
                 className="whitespace-pre-line"
                 style={{
                   ...textStyle,
-                  fontSize: `${currentSlide.fontSize || 60}px`,
+                  fontSize: `${(currentSlide.fontSize || 60) * scaleFactor}px`,
                   fontFamily: currentSlide.fontFamily || 'system-ui, -apple-system, sans-serif',
                   fontWeight: currentSlide.fontWeight || 700,
                   lineHeight: 1.3,
@@ -198,13 +221,13 @@ export default function VideoBox({ config }) {
                       src={currentSlide.emoji}
                       alt="Custom icon"
                       style={{
-                        width: `${currentSlide.emojiSize || 60}px`,
-                        height: `${currentSlide.emojiSize || 60}px`,
+                        width: `${(currentSlide.emojiSize || 60) * scaleFactor}px`,
+                        height: `${(currentSlide.emojiSize || 60) * scaleFactor}px`,
                         objectFit: 'contain',
                       }}
                     />
                   ) : (
-                    <span style={{ fontSize: `${currentSlide.emojiSize || 60}px` }}>
+                    <span style={{ fontSize: `${(currentSlide.emojiSize || 60) * scaleFactor}px` }}>
                       {currentSlide.emoji}
                     </span>
                   )}

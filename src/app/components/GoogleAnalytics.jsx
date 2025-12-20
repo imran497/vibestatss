@@ -23,6 +23,11 @@ function GoogleAnalyticsTracker({ GA_MEASUREMENT_ID }) {
 }
 
 export default function GoogleAnalytics({ GA_MEASUREMENT_ID }) {
+  // Only load analytics on production domain
+  if (typeof window !== 'undefined' && window.location.hostname !== 'vibestatss.com') {
+    return null;
+  }
+
   if (!GA_MEASUREMENT_ID) {
     return null;
   }

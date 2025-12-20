@@ -118,6 +118,19 @@ export async function recordVideo(config) {
   console.log('✓ Using codec:', codecConfig.codec);
   videoEncoder.configure(codecConfig);
 
+  // Load noise texture for background
+  const noiseTexture = new Image();
+  noiseTexture.crossOrigin = 'anonymous';
+  noiseTexture.src = 'https://grainy-gradients.vercel.app/noise.svg';
+  await new Promise((resolve) => {
+    noiseTexture.onload = resolve;
+    noiseTexture.onerror = () => {
+      console.warn('Noise texture loading failed, continuing without texture');
+      resolve();
+    };
+  });
+  console.log('✓ Noise texture loaded');
+
   // Setup canvas
   const canvas = document.createElement('canvas');
   canvas.width = VIDEO_WIDTH;
@@ -164,6 +177,35 @@ export async function recordVideo(config) {
     // Clear canvas with background
     ctx.fillStyle = config.colors.background;
     ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+
+    // Draw texture overlays
+    ctx.save();
+
+    // Radial gradient overlay (subtle center glow)
+    const radialGradient = ctx.createRadialGradient(
+      VIDEO_WIDTH / 2, VIDEO_HEIGHT / 2, 0,
+      VIDEO_WIDTH / 2, VIDEO_HEIGHT / 2, Math.max(VIDEO_WIDTH, VIDEO_HEIGHT) / 1.5
+    );
+    radialGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
+    radialGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+    radialGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = radialGradient;
+    ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+
+    // Noise texture overlay (matches preview: opacity-20 brightness-100 contrast-150)
+    if (noiseTexture && noiseTexture.complete) {
+      ctx.globalAlpha = 0.2;
+      ctx.filter = 'brightness(1.0) contrast(1.5)';
+      const pattern = ctx.createPattern(noiseTexture, 'repeat');
+      if (pattern) {
+        ctx.fillStyle = pattern;
+        ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+      }
+      ctx.filter = 'none';
+      ctx.globalAlpha = 1.0;
+    }
+
+    ctx.restore();
 
     // Draw confetti layer
     if (config.showConfetti) {

@@ -10,17 +10,33 @@ import { Button } from '@/app/components/ui/button';
 import TemplateSelectorModal from '@/app/creator/common/TemplateSelectorModal';
 import ColorPicker from '@/app/components/common/ColorPicker';
 
-// Font options (matching text video template)
+// High-quality Google Font options
 const FONT_FAMILY_OPTIONS = [
-  { value: 'system-ui, -apple-system, sans-serif', label: 'Default (System)' },
-  { value: 'Arial, sans-serif', label: 'Arial' },
-  { value: 'Helvetica, sans-serif', label: 'Helvetica' },
-  { value: 'Georgia, serif', label: 'Georgia' },
-  { value: 'Times New Roman, serif', label: 'Times New Roman' },
-  { value: 'Courier New, monospace', label: 'Courier New' },
-  { value: 'Verdana, sans-serif', label: 'Verdana' },
-  { value: 'Impact, sans-serif', label: 'Impact' },
-  { value: 'Trebuchet MS, sans-serif', label: 'Trebuchet MS' },
+  // Modern Sans-Serif
+  { value: 'var(--font-inter), sans-serif', label: 'Inter', category: 'Modern' },
+  { value: 'var(--font-poppins), sans-serif', label: 'Poppins', category: 'Modern' },
+  { value: 'var(--font-montserrat), sans-serif', label: 'Montserrat', category: 'Modern' },
+  { value: 'var(--font-outfit), sans-serif', label: 'Outfit', category: 'Modern' },
+  { value: 'var(--font-dm-sans), sans-serif', label: 'DM Sans', category: 'Modern' },
+  { value: 'var(--font-work-sans), sans-serif', label: 'Work Sans', category: 'Modern' },
+  { value: 'var(--font-plus-jakarta), sans-serif', label: 'Plus Jakarta Sans', category: 'Modern' },
+
+  // Elegant Serif
+  { value: 'var(--font-playfair), serif', label: 'Playfair Display', category: 'Elegant' },
+  { value: 'var(--font-merriweather), serif', label: 'Merriweather', category: 'Elegant' },
+  { value: 'var(--font-lora), serif', label: 'Lora', category: 'Elegant' },
+
+  // Bold Display
+  { value: 'var(--font-bebas-neue), sans-serif', label: 'Bebas Neue', category: 'Bold' },
+  { value: 'var(--font-oswald), sans-serif', label: 'Oswald', category: 'Bold' },
+  { value: 'var(--font-righteous), sans-serif', label: 'Righteous', category: 'Bold' },
+
+  // Monospace
+  { value: 'var(--font-jetbrains-mono), monospace', label: 'JetBrains Mono', category: 'Code' },
+  { value: 'var(--font-space-mono), monospace', label: 'Space Mono', category: 'Code' },
+
+  // System Fallbacks
+  { value: 'system-ui, -apple-system, sans-serif', label: 'System Default', category: 'System' },
 ];
 
 // Color scheme presets
@@ -67,10 +83,72 @@ const COLOR_PRESETS = {
   },
 };
 
+// Generate a 5-level color palette from a base color and background
+function generateColorPalette(baseColor, backgroundColor) {
+  // Convert hex to RGB
+  const hexToRgb = (hex) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : { r: 0, g: 0, b: 0 };
+  };
+
+  // Convert RGB to hex
+  const rgbToHex = (r, g, b) => {
+    return '#' + [r, g, b].map(x => {
+      const hex = Math.round(Math.max(0, Math.min(255, x))).toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    }).join('');
+  };
+
+  // Interpolate between two colors
+  const interpolateColor = (color1, color2, factor) => {
+    return {
+      r: color1.r + (color2.r - color1.r) * factor,
+      g: color1.g + (color2.g - color1.g) * factor,
+      b: color1.b + (color2.b - color1.b) * factor,
+    };
+  };
+
+  const bg = hexToRgb(backgroundColor);
+  const base = hexToRgb(baseColor);
+
+  // Generate 5 levels
+  // level0: very close to background (10% towards base color)
+  // level1: 30% towards base color
+  // level2: 50% towards base color
+  // level3: 75% towards base color
+  // level4: full base color with slight brightness boost
+
+  const level0 = interpolateColor(bg, base, 0.1);
+  const level1 = interpolateColor(bg, base, 0.3);
+  const level2 = interpolateColor(bg, base, 0.5);
+  const level3 = interpolateColor(bg, base, 0.75);
+
+  // level4 is the base color with a slight brightness boost
+  const brightnessBoost = 1.15;
+  const level4 = {
+    r: Math.min(255, base.r * brightnessBoost),
+    g: Math.min(255, base.g * brightnessBoost),
+    b: Math.min(255, base.b * brightnessBoost),
+  };
+
+  return {
+    level0: rgbToHex(level0.r, level0.g, level0.b),
+    level1: rgbToHex(level1.r, level1.g, level1.b),
+    level2: rgbToHex(level2.r, level2.g, level2.b),
+    level3: rgbToHex(level3.r, level3.g, level3.b),
+    level4: rgbToHex(level4.r, level4.g, level4.b),
+  };
+}
+
 export default function LeftPanel({ config, setConfig, templateId, templateName }) {
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [customBaseColor, setCustomBaseColor] = useState('#39d353');
 
   const updateConfig = (field, value) => {
     setConfig(prev => {
@@ -82,6 +160,12 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
         if (newConfig.cornerRadius > maxRadius) {
           newConfig.cornerRadius = maxRadius;
         }
+      }
+
+      // If background color changes and color scheme is custom, regenerate palette
+      if (field === 'backgroundColor' && prev.colorScheme === 'custom') {
+        const palette = generateColorPalette(customBaseColor, value);
+        newConfig.customColors = palette;
       }
 
       return newConfig;
@@ -124,18 +208,40 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
   };
 
   const applyColorPreset = (presetKey) => {
-    const preset = COLOR_PRESETS[presetKey];
-    setConfig(prev => ({
-      ...prev,
-      colorScheme: presetKey,
-      customColors: {
-        level0: preset.level0,
-        level1: preset.level1,
-        level2: preset.level2,
-        level3: preset.level3,
-        level4: preset.level4,
-      },
-    }));
+    if (presetKey === 'custom') {
+      // Generate custom palette based on current base color and background
+      const palette = generateColorPalette(customBaseColor, config.backgroundColor);
+      setConfig(prev => ({
+        ...prev,
+        colorScheme: 'custom',
+        customColors: palette,
+      }));
+    } else {
+      const preset = COLOR_PRESETS[presetKey];
+      setConfig(prev => ({
+        ...prev,
+        colorScheme: presetKey,
+        customColors: {
+          level0: preset.level0,
+          level1: preset.level1,
+          level2: preset.level2,
+          level3: preset.level3,
+          level4: preset.level4,
+        },
+      }));
+    }
+  };
+
+  const handleCustomBaseColorChange = (color) => {
+    setCustomBaseColor(color);
+    // If custom scheme is active, regenerate the palette
+    if (config.colorScheme === 'custom') {
+      const palette = generateColorPalette(color, config.backgroundColor);
+      setConfig(prev => ({
+        ...prev,
+        customColors: palette,
+      }));
+    }
   };
 
   return (
@@ -281,13 +387,14 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
           </div>
         </div>
 
-        {/* Color Scheme */}
+        {/* Styling Options */}
         <div className="space-y-4 p-4 rounded-lg border border-border bg-card/50">
-          <h3 className="font-semibold text-sm">Color Scheme</h3>
+          <h3 className="font-semibold text-sm">Styling</h3>
 
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Presets</Label>
-            <div className="grid grid-cols-5 gap-2">
+          {/* Color Scheme Presets */}
+          <div className="space-y-3">
+            <Label className="text-xs text-muted-foreground">Color Scheme</Label>
+            <div className="grid grid-cols-3 gap-2">
               {Object.entries(COLOR_PRESETS).map(([key, preset]) => (
                 <button
                   key={key}
@@ -310,56 +417,48 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
                   </div>
                 </button>
               ))}
+              {/* Custom Color Scheme Button */}
+              <button
+                type="button"
+                onClick={() => applyColorPreset('custom')}
+                className={`h-12 rounded-md border-2 transition-all relative overflow-hidden flex items-center justify-center ${config.colorScheme === 'custom'
+                  ? 'border-primary ring-2 ring-primary/20'
+                  : 'border-border hover:border-primary/50'
+                  }`}
+                title="Custom"
+              >
+                {config.colorScheme === 'custom' ? (
+                  <div className="flex gap-[1px] h-full w-full">
+                    {[0, 1, 2, 3, 4].map((level) => (
+                      <div
+                        key={level}
+                        className="flex-1"
+                        style={{ backgroundColor: config.customColors[`level${level}`] }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-xs font-semibold text-muted-foreground">Custom</span>
+                )}
+              </button>
             </div>
+
+            {/* Custom Base Color Picker */}
+            {config.colorScheme === 'custom' && (
+              <div className="space-y-2 p-3 rounded-lg bg-muted/50 border border-border">
+                <Label className="text-xs text-muted-foreground">Base Color</Label>
+                <div className="flex items-center gap-3">
+                  <ColorPicker
+                    color={customBaseColor}
+                    onChange={handleCustomBaseColorChange}
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    Palette auto-generates based on background
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-
-        {/* Visual Options */}
-        <div className="space-y-4 p-4 rounded-lg border border-border bg-card/50">
-          <h3 className="font-semibold text-sm">Visual Elements</h3>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="showUsername">Show Username</Label>
-              <Switch
-                id="showUsername"
-                checked={config.showUsername}
-                onCheckedChange={(checked) => updateConfig('showUsername', checked)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Label htmlFor="showTotalCount">Show Total Count</Label>
-              <Switch
-                id="showTotalCount"
-                checked={config.showTotalCount}
-                onCheckedChange={(checked) => updateConfig('showTotalCount', checked)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Label htmlFor="showMonthLabels">Show Month Labels</Label>
-              <Switch
-                id="showMonthLabels"
-                checked={config.showMonthLabels}
-                onCheckedChange={(checked) => updateConfig('showMonthLabels', checked)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Label htmlFor="showDayLabels">Show Day Labels</Label>
-              <Switch
-                id="showDayLabels"
-                checked={config.showDayLabels}
-                onCheckedChange={(checked) => updateConfig('showDayLabels', checked)}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Styling Options */}
-        <div className="space-y-4 p-4 rounded-lg border border-border bg-card/50">
-          <h3 className="font-semibold text-sm">Styling</h3>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
@@ -450,6 +549,49 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
               step="1"
               className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
             />
+          </div>
+        </div>
+
+        {/* Visual Options */}
+        <div className="space-y-4 p-4 rounded-lg border border-border bg-card/50">
+          <h3 className="font-semibold text-sm">Visual Elements</h3>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="showUsername">Show Username</Label>
+              <Switch
+                id="showUsername"
+                checked={config.showUsername}
+                onCheckedChange={(checked) => updateConfig('showUsername', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="showTotalCount">Show Total Count</Label>
+              <Switch
+                id="showTotalCount"
+                checked={config.showTotalCount}
+                onCheckedChange={(checked) => updateConfig('showTotalCount', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="showMonthLabels">Show Month Labels</Label>
+              <Switch
+                id="showMonthLabels"
+                checked={config.showMonthLabels}
+                onCheckedChange={(checked) => updateConfig('showMonthLabels', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="showDayLabels">Show Day Labels</Label>
+              <Switch
+                id="showDayLabels"
+                checked={config.showDayLabels}
+                onCheckedChange={(checked) => updateConfig('showDayLabels', checked)}
+              />
+            </div>
           </div>
         </div>
       </div>

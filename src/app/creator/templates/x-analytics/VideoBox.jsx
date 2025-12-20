@@ -156,6 +156,10 @@ export default function VideoBox({ config }) {
           aspectRatio: `${config.export.width} / ${config.export.height}`,
         }}
       >
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
+
         {/* Content Container */}
         <div className="absolute inset-0 p-8 flex flex-col gap-4">
           {/* Cards Grid - 2 per row, horizontal cards */}

@@ -3,7 +3,6 @@ import { jwtVerify } from 'jose';
 
 // List of protected routes that require authentication
 const protectedRoutes = [
-  '/creator',
   '/dashboard',
   '/profile',
   '/settings',

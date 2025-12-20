@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, TrendingUp, Check, BadgeCheck, BarChart3, Type, GitBranch } from 'lucide-react';
+import { X, TrendingUp, Check, BadgeCheck, BarChart3, Type, GitBranch, Crown } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
+import { useAuth } from '@/app/hooks/useAuth';
 import FollowerCountPreview from '../templateModalPreview/FollowerCountPreview';
 
 const AVAILABLE_TEMPLATES = [
@@ -12,6 +14,7 @@ const AVAILABLE_TEMPLATES = [
     description: 'Animated follower milestone celebrations',
     icon: TrendingUp,
     isActive: true,
+    isPremium: false,
   },
   {
     id: 2,
@@ -19,6 +22,7 @@ const AVAILABLE_TEMPLATES = [
     description: 'Showcase verified follower stats',
     icon: BadgeCheck,
     isActive: true,
+    isPremium: true,
   },
   {
     id: 3,
@@ -26,6 +30,7 @@ const AVAILABLE_TEMPLATES = [
     description: 'Showcase your X (Twitter) analytics with stunning cards',
     icon: BarChart3,
     isActive: true,
+    isPremium: true,
   },
   {
     id: 4,
@@ -33,6 +38,7 @@ const AVAILABLE_TEMPLATES = [
     description: 'Create animated text videos with custom styling and effects',
     icon: Type,
     isActive: true,
+    isPremium: false,
   },
   {
     id: 5,
@@ -40,21 +46,44 @@ const AVAILABLE_TEMPLATES = [
     description: 'Animated GitHub contribution heatmap with bubble pop effects',
     icon: GitBranch,
     isActive: true,
+    isPremium: true,
   },
 ];
 
 export default function TemplateSelectorModal({ isOpen, onClose, currentTemplate = 1 }) {
   const router = useRouter();
+  const { isAuthenticated, loading } = useAuth();
+
+  // Determine initial tab based on current template
+  const currentTemplateObj = AVAILABLE_TEMPLATES.find(t => t.id === currentTemplate);
+  const initialTab = currentTemplateObj?.isPremium ? 'premium' : 'free';
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   if (!isOpen) return null;
 
   const handleTemplateSelect = (template) => {
-    if (template.isActive) {
-      // Navigate to the template page
-      router.push(`/creator/${template.id}`);
-      onClose();
+    if (!template.isActive) return;
+
+    // Check if template is premium and user is not authenticated
+    if (template.isPremium && !isAuthenticated && !loading) {
+      // Store the template ID to redirect after login
+      localStorage.setItem('pendingTemplateId', template.id.toString());
+      localStorage.setItem('returnUrl', `/creator/${template.id}`);
+
+      // Redirect to login
+      window.location.href = '/login';
+      return;
     }
+
+    // Navigate to the template page
+    router.push(`/creator/${template.id}`);
+    onClose();
   };
+
+  // Filter templates based on active tab
+  const filteredTemplates = AVAILABLE_TEMPLATES.filter(template =>
+    activeTab === 'free' ? !template.isPremium : template.isPremium
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -82,10 +111,37 @@ export default function TemplateSelectorModal({ isOpen, onClose, currentTemplate
           </button>
         </div>
 
+        {/* Tabs */}
+        <div className="px-6 pt-4 border-b border-border">
+          <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
+            <button
+              onClick={() => setActiveTab('free')}
+              className={`flex-1 px-4 py-2.5 rounded-md font-medium text-sm transition-all ${
+                activeTab === 'free'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Free Templates
+            </button>
+            <button
+              onClick={() => setActiveTab('premium')}
+              className={`flex-1 px-4 py-2.5 rounded-md font-medium text-sm transition-all flex items-center justify-center gap-2 ${
+                activeTab === 'premium'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Crown size={14} className="text-yellow-500" />
+              Premium Templates
+            </button>
+          </div>
+        </div>
+
         {/* Template Grid */}
-        <div className="p-6 overflow-y-auto max-h-[calc(80vh-140px)]">
+        <div className="p-6 overflow-y-auto max-h-[calc(80vh-200px)]">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {AVAILABLE_TEMPLATES.map((template) => {
+            {filteredTemplates.map((template) => {
               const isSelected = template.id === currentTemplate;
               const isDisabled = !template.isActive;
 
@@ -103,6 +159,16 @@ export default function TemplateSelectorModal({ isOpen, onClose, currentTemplate
                     ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                   `}
                 >
+                  {/* Premium Badge */}
+                  {template.isPremium && (
+                    <div className="absolute top-3 left-3 z-10">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-yellow-500 to-amber-500 shadow-lg">
+                        <Crown size={12} className="text-white" />
+                        <span className="text-xs font-bold text-white">Premium</span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Selected Indicator */}
                   {isSelected && (
                     <div className="absolute top-3 right-3 z-10">

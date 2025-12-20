@@ -1,6 +1,41 @@
 /**
  * Video recorder for Daily Update template
  */
+
+// Helper function to convert CSS variable font to actual font name for canvas
+function getCanvasFontFamily(fontFamily) {
+  if (!fontFamily) return 'sans-serif';
+
+  // Extract font name from CSS variable format: var(--font-name) -> Name
+  const fontMap = {
+    'var(--font-inter)': 'Inter',
+    'var(--font-poppins)': 'Poppins',
+    'var(--font-montserrat)': 'Montserrat',
+    'var(--font-outfit)': 'Outfit',
+    'var(--font-dm-sans)': 'DM Sans',
+    'var(--font-work-sans)': 'Work Sans',
+    'var(--font-plus-jakarta)': 'Plus Jakarta Sans',
+    'var(--font-playfair)': 'Playfair Display',
+    'var(--font-merriweather)': 'Merriweather',
+    'var(--font-lora)': 'Lora',
+    'var(--font-bebas-neue)': 'Bebas Neue',
+    'var(--font-oswald)': 'Oswald',
+    'var(--font-righteous)': 'Righteous',
+    'var(--font-jetbrains-mono)': 'JetBrains Mono',
+    'var(--font-space-mono)': 'Space Mono',
+  };
+
+  // Check if fontFamily contains a CSS variable
+  for (const [cssVar, actualFont] of Object.entries(fontMap)) {
+    if (fontFamily.includes(cssVar)) {
+      return actualFont;
+    }
+  }
+
+  // Return as-is if it's already a plain font name
+  return fontFamily;
+}
+
 export async function recordVideo(config) {
   console.log('🎬 Initializing Daily Update video recorder...');
 
@@ -91,6 +126,47 @@ export async function recordVideo(config) {
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
 
+  // Preload fonts used in slides
+  const fontsToLoad = new Set();
+  for (const slide of config.textSlides) {
+    if (slide.fontFamily) {
+      const fontName = getCanvasFontFamily(slide.fontFamily);
+      if (fontName !== 'sans-serif' && fontName !== 'system-ui') {
+        fontsToLoad.add(fontName);
+      }
+    }
+  }
+
+  // Load fonts using CSS Font Loading API
+  if (fontsToLoad.size > 0) {
+    console.log('🔤 Preloading fonts:', Array.from(fontsToLoad).join(', '));
+    const fontLoadPromises = Array.from(fontsToLoad).map(fontName => {
+      // Load multiple weights to ensure all used weights are available
+      return Promise.all([
+        document.fonts.load(`400 16px "${fontName}"`),
+        document.fonts.load(`700 16px "${fontName}"`),
+        document.fonts.load(`800 16px "${fontName}"`),
+      ]).catch(err => {
+        console.warn(`⚠️ Failed to load font ${fontName}:`, err.message);
+      });
+    });
+    await Promise.all(fontLoadPromises);
+    console.log('✓ Fonts loaded');
+  }
+
+  // Load noise texture for background
+  const noiseTexture = new Image();
+  noiseTexture.crossOrigin = 'anonymous';
+  noiseTexture.src = 'https://grainy-gradients.vercel.app/noise.svg';
+  await new Promise((resolve) => {
+    noiseTexture.onload = resolve;
+    noiseTexture.onerror = () => {
+      console.warn('Noise texture loading failed, continuing without texture');
+      resolve();
+    };
+  });
+  console.log('✓ Noise texture loaded');
+
   // Preload custom icons
   const customIconImages = {};
   for (const slide of config.textSlides) {
@@ -150,6 +226,35 @@ export async function recordVideo(config) {
       ctx.fillStyle = activeBgColors[0];
     }
     ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+
+    // Draw texture overlays
+    ctx.save();
+
+    // Radial gradient overlay (subtle center glow)
+    const radialGradient = ctx.createRadialGradient(
+      VIDEO_WIDTH / 2, VIDEO_HEIGHT / 2, 0,
+      VIDEO_WIDTH / 2, VIDEO_HEIGHT / 2, Math.max(VIDEO_WIDTH, VIDEO_HEIGHT) / 1.5
+    );
+    radialGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
+    radialGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+    radialGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = radialGradient;
+    ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+
+    // Noise texture overlay (matches preview: opacity-20 brightness-100 contrast-150)
+    if (noiseTexture && noiseTexture.complete) {
+      ctx.globalAlpha = 0.2;
+      ctx.filter = 'brightness(1.0) contrast(1.5)';
+      const pattern = ctx.createPattern(noiseTexture, 'repeat');
+      if (pattern) {
+        ctx.fillStyle = pattern;
+        ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+      }
+      ctx.filter = 'none';
+      ctx.globalAlpha = 1.0;
+    }
+
+    ctx.restore();
 
     // Calculate animation progress
     let opacity = 1;
@@ -233,7 +338,7 @@ export async function recordVideo(config) {
     const REFERENCE_HEIGHT = 400;
     const scaleFactor = VIDEO_HEIGHT / REFERENCE_HEIGHT;
     const baseFontSize = (slide.fontSize || 60) * scaleFactor;
-    const fontFamily = slide.fontFamily || 'system-ui, -apple-system, sans-serif';
+    const fontFamily = getCanvasFontFamily(slide.fontFamily || 'system-ui, -apple-system, sans-serif');
     const fontWeight = slide.fontWeight || 700;
     ctx.font = `${fontWeight} ${baseFontSize}px ${fontFamily}`;
     ctx.textAlign = 'center';

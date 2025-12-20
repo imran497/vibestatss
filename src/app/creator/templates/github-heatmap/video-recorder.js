@@ -42,6 +42,40 @@ const COLOR_PRESETS = {
   },
 };
 
+// Helper function to convert CSS variable font to actual font name for canvas
+function getCanvasFontFamily(fontFamily) {
+  if (!fontFamily) return 'sans-serif';
+
+  // Extract font name from CSS variable format: var(--font-name) -> Name
+  const fontMap = {
+    'var(--font-inter)': 'Inter',
+    'var(--font-poppins)': 'Poppins',
+    'var(--font-montserrat)': 'Montserrat',
+    'var(--font-outfit)': 'Outfit',
+    'var(--font-dm-sans)': 'DM Sans',
+    'var(--font-work-sans)': 'Work Sans',
+    'var(--font-plus-jakarta)': 'Plus Jakarta Sans',
+    'var(--font-playfair)': 'Playfair Display',
+    'var(--font-merriweather)': 'Merriweather',
+    'var(--font-lora)': 'Lora',
+    'var(--font-bebas-neue)': 'Bebas Neue',
+    'var(--font-oswald)': 'Oswald',
+    'var(--font-righteous)': 'Righteous',
+    'var(--font-jetbrains-mono)': 'JetBrains Mono',
+    'var(--font-space-mono)': 'Space Mono',
+  };
+
+  // Check if fontFamily contains a CSS variable
+  for (const [cssVar, actualFont] of Object.entries(fontMap)) {
+    if (fontFamily.includes(cssVar)) {
+      return actualFont;
+    }
+  }
+
+  // Return as-is if it's already a plain font name
+  return fontFamily;
+}
+
 export async function recordVideo(config) {
   console.log('🎬 Initializing GitHub Heatmap video recorder...');
 
@@ -115,6 +149,35 @@ export async function recordVideo(config) {
 
   console.log('✓ Using codec:', codecConfig.codec);
   videoEncoder.configure(codecConfig);
+
+  // Load noise texture for background
+  const noiseTexture = new Image();
+  noiseTexture.crossOrigin = 'anonymous';
+  noiseTexture.src = 'https://grainy-gradients.vercel.app/noise.svg';
+  await new Promise((resolve) => {
+    noiseTexture.onload = resolve;
+    noiseTexture.onerror = () => {
+      console.warn('Noise texture loading failed, continuing without texture');
+      resolve();
+    };
+  });
+  console.log('✓ Noise texture loaded');
+
+  // Preload fonts
+  const fontName = getCanvasFontFamily(config.font);
+  if (fontName !== 'sans-serif' && fontName !== 'system-ui') {
+    console.log('🔤 Preloading font:', fontName);
+    try {
+      await Promise.all([
+        document.fonts.load(`400 16px "${fontName}"`),
+        document.fonts.load(`700 16px "${fontName}"`),
+        document.fonts.load(`800 16px "${fontName}"`),
+      ]);
+      console.log('✓ Font loaded');
+    } catch (err) {
+      console.warn(`⚠️ Failed to load font ${fontName}:`, err.message);
+    }
+  }
 
   // Setup canvas
   const canvas = document.createElement('canvas');
@@ -462,6 +525,35 @@ export async function recordVideo(config) {
     ctx.fillStyle = config.backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Draw texture overlays
+    ctx.save();
+
+    // Radial gradient overlay (subtle center glow)
+    const radialGradient = ctx.createRadialGradient(
+      canvas.width / 2, canvas.height / 2, 0,
+      canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height) / 1.5
+    );
+    radialGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
+    radialGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+    radialGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = radialGradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Noise texture overlay (matches preview: opacity-20 brightness-100 contrast-150)
+    if (noiseTexture && noiseTexture.complete) {
+      ctx.globalAlpha = 0.2;
+      ctx.filter = 'brightness(1.0) contrast(1.5)';
+      const pattern = ctx.createPattern(noiseTexture, 'repeat');
+      if (pattern) {
+        ctx.fillStyle = pattern;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      ctx.filter = 'none';
+      ctx.globalAlpha = 1.0;
+    }
+
+    ctx.restore();
+
     // Easing functions
     const easeInOut = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     const easeOutElastic = (x) => {
@@ -519,7 +611,8 @@ export async function recordVideo(config) {
 
     // Calculate total width for centering
     const fullUsername = `@${username || config.username}`;
-    ctx.font = `bold ${currentFontSize}px ${config.font}`;
+    const canvasFont = getCanvasFontFamily(config.font);
+    ctx.font = `bold ${currentFontSize}px ${canvasFont}`;
     const textMetrics = ctx.measureText(fullUsername);
     // Note: measureText width scales with font size automatically
     const textWidth = textMetrics.width;
@@ -599,7 +692,7 @@ export async function recordVideo(config) {
       ctx.textBaseline = 'middle';
 
       // Main Count
-      ctx.font = `bold 48px ${config.font}`;
+      ctx.font = `bold 48px ${canvasFont}`;
       ctx.fillText(`${filteredTotal} Contributions`, 0, -20); // Shifted up
 
       // Subtitle
@@ -619,7 +712,7 @@ export async function recordVideo(config) {
         }
       };
 
-      ctx.font = `normal 24px ${config.font}`;
+      ctx.font = `normal 24px ${canvasFont}`;
       ctx.globalAlpha = countOpacity * 0.8; // Slightly more transparent
       ctx.fillText(getSubtitleText(), 0, 20); // Shifted down (gap of 40px total)
 
@@ -704,7 +797,7 @@ export async function recordVideo(config) {
         if (config.showMonthLabels) {
           ctx.save();
           ctx.fillStyle = config.textColor;
-          ctx.font = `${Math.max(scaledCellSize * 0.8, 8 * exportScale)}px ${config.font}`;
+          ctx.font = `${Math.max(scaledCellSize * 0.8, 8 * exportScale)}px ${canvasFont}`;
           ctx.globalAlpha = heatmapOpacity * 0.6;
           ctx.textAlign = 'left';
           ctx.fillText(section.monthName, 0, 0);
@@ -720,7 +813,7 @@ export async function recordVideo(config) {
         if (config.showDayLabels && isFirstColumn) {
           ctx.save();
           ctx.fillStyle = config.textColor;
-          ctx.font = `${Math.max(scaledCellSize * 0.7, 7 * exportScale)}px ${config.font}`;
+          ctx.font = `${Math.max(scaledCellSize * 0.7, 7 * exportScale)}px ${canvasFont}`;
           ctx.globalAlpha = heatmapOpacity * 0.5;
           ctx.textAlign = 'right';
           ctx.textBaseline = 'middle';

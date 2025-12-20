@@ -76,6 +76,10 @@ export default function RightPanel({ config, fonts }) {
             aspectRatio: aspectRatio,
           }}
         >
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent"></div>
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
+
           <VideoBox config={config} fonts={fonts} key={resetKey} />
         </div>
       </div>

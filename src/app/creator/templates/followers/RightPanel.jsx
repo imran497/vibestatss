@@ -11,7 +11,26 @@ const getDirection = (direction) => {
   return direction || 'to right';
 };
 
-export default function RightPanel({ config, fonts }) {
+// Helper function to get font CSS variable
+const getFontFamily = (fontName) => {
+  const fontMap = {
+    'Inter': 'var(--font-inter), sans-serif',
+    'Poppins': 'var(--font-poppins), sans-serif',
+    'Montserrat': 'var(--font-montserrat), sans-serif',
+    'Outfit': 'var(--font-outfit), sans-serif',
+    'DM Sans': 'var(--font-dm-sans), sans-serif',
+    'Work Sans': 'var(--font-work-sans), sans-serif',
+    'Playfair Display': 'var(--font-playfair), serif',
+    'Merriweather': 'var(--font-merriweather), serif',
+    'Bebas Neue': 'var(--font-bebas-neue), sans-serif',
+    'Oswald': 'var(--font-oswald), sans-serif',
+    'JetBrains Mono': 'var(--font-jetbrains-mono), monospace',
+    'Space Mono': 'var(--font-space-mono), monospace',
+  };
+  return fontMap[fontName] || 'system-ui, -apple-system, sans-serif';
+};
+
+export default function RightPanel({ config }) {
   const previewRef = useRef(null);
   const audioRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -271,8 +290,11 @@ export default function RightPanel({ config, fonts }) {
 
         <div
           ref={previewRef}
-          className={`w-full max-w-[600px] lg:w-[600px] aspect-[16/9] rounded-2xl lg:rounded-[1.8rem] flex items-center justify-center shadow-2xl overflow-hidden relative ring-1 ring-white/10 ${fonts[config.style.font]}`}
-          style={bgStyle}
+          className="w-full max-w-[600px] lg:w-[600px] aspect-[16/9] rounded-2xl lg:rounded-[1.8rem] flex items-center justify-center shadow-2xl overflow-hidden relative ring-1 ring-white/10"
+          style={{
+            ...bgStyle,
+            fontFamily: getFontFamily(config.style.font)
+          }}
         >
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent"></div>
