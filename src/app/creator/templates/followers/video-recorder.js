@@ -30,11 +30,18 @@ export async function recordVideo(config) {
   };
   const fontFamily = fontMap[config.style.font] || 'Inter';
 
+  console.log('🔤 Preloading font:', fontFamily);
   try {
-    await document.fonts.load(`900 288px "${fontFamily}"`);
+    await Promise.all([
+      document.fonts.load(`400 16px "${fontFamily}"`),
+      document.fonts.load(`600 16px "${fontFamily}"`),
+      document.fonts.load(`700 16px "${fontFamily}"`),
+      document.fonts.load(`800 16px "${fontFamily}"`),
+      document.fonts.load(`900 16px "${fontFamily}"`),
+    ]);
     console.log('✓ Font loaded:', fontFamily);
   } catch (err) {
-    console.warn('Font loading failed, continuing anyway:', err);
+    console.warn('⚠️ Font loading failed, continuing anyway:', err);
   }
 
   // Load image if selected
@@ -64,6 +71,23 @@ export async function recordVideo(config) {
       console.log('✓ Image loaded:', config.image.selectedId || 'custom');
     }
   }
+
+  // Load noise texture for background
+  let noiseTexture = null;
+  const textureImg = new Image();
+  textureImg.crossOrigin = 'anonymous';
+  textureImg.src = 'https://grainy-gradients.vercel.app/noise.svg';
+  await new Promise((resolve) => {
+    textureImg.onload = () => {
+      noiseTexture = textureImg;
+      resolve();
+    };
+    textureImg.onerror = () => {
+      console.warn('Noise texture loading failed, continuing without texture');
+      resolve();
+    };
+  });
+  console.log('✓ Noise texture loaded');
 
   // 1. Setup main canvas for video content
   const canvas = document.createElement("canvas");
@@ -228,11 +252,11 @@ export async function recordVideo(config) {
   };
 
   // 4. MP4 export
-  return await exportMP4(canvas, ctx, confettiCanvas, fireConfetti, config, overlayImage);
+  return await exportMP4(canvas, ctx, confettiCanvas, fireConfetti, config, overlayImage, noiseTexture);
 }
 
 // MP4 Export using VideoEncoder
-async function exportMP4(canvas, ctx, confettiCanvas, fireConfetti, config, overlayImage) {
+async function exportMP4(canvas, ctx, confettiCanvas, fireConfetti, config, overlayImage, noiseTexture) {
   const { Muxer, ArrayBufferTarget } = await import('mp4-muxer');
 
   // Read export settings from config (same as recordVideo)
@@ -431,7 +455,8 @@ async function exportMP4(canvas, ctx, confettiCanvas, fireConfetti, config, over
       VIDEO_WIDTH,
       VIDEO_HEIGHT,
       fontFamily,
-      overlayImage
+      overlayImage,
+      noiseTexture
     });
 
     // Composite confetti layer on top

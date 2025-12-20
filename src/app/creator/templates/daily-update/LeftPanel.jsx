@@ -20,16 +20,33 @@ const ANIMATION_OPTIONS = [
   { value: 'reveal', label: 'Reveal', Icon: Eye },
 ];
 
+// High-quality Google Font options
 const FONT_FAMILY_OPTIONS = [
-  { value: 'system-ui, -apple-system, sans-serif', label: 'Default (System)' },
-  { value: 'Arial, sans-serif', label: 'Arial' },
-  { value: 'Helvetica, sans-serif', label: 'Helvetica' },
-  { value: 'Georgia, serif', label: 'Georgia' },
-  { value: 'Times New Roman, serif', label: 'Times New Roman' },
-  { value: 'Courier New, monospace', label: 'Courier New' },
-  { value: 'Verdana, sans-serif', label: 'Verdana' },
-  { value: 'Impact, sans-serif', label: 'Impact' },
-  { value: 'Trebuchet MS, sans-serif', label: 'Trebuchet MS' },
+  // Modern Sans-Serif
+  { value: 'var(--font-inter), sans-serif', label: 'Inter', category: 'Modern' },
+  { value: 'var(--font-poppins), sans-serif', label: 'Poppins', category: 'Modern' },
+  { value: 'var(--font-montserrat), sans-serif', label: 'Montserrat', category: 'Modern' },
+  { value: 'var(--font-outfit), sans-serif', label: 'Outfit', category: 'Modern' },
+  { value: 'var(--font-dm-sans), sans-serif', label: 'DM Sans', category: 'Modern' },
+  { value: 'var(--font-work-sans), sans-serif', label: 'Work Sans', category: 'Modern' },
+  { value: 'var(--font-plus-jakarta), sans-serif', label: 'Plus Jakarta Sans', category: 'Modern' },
+
+  // Elegant Serif
+  { value: 'var(--font-playfair), serif', label: 'Playfair Display', category: 'Elegant' },
+  { value: 'var(--font-merriweather), serif', label: 'Merriweather', category: 'Elegant' },
+  { value: 'var(--font-lora), serif', label: 'Lora', category: 'Elegant' },
+
+  // Bold Display
+  { value: 'var(--font-bebas-neue), sans-serif', label: 'Bebas Neue', category: 'Bold' },
+  { value: 'var(--font-oswald), sans-serif', label: 'Oswald', category: 'Bold' },
+  { value: 'var(--font-righteous), sans-serif', label: 'Righteous', category: 'Bold' },
+
+  // Monospace
+  { value: 'var(--font-jetbrains-mono), monospace', label: 'JetBrains Mono', category: 'Code' },
+  { value: 'var(--font-space-mono), monospace', label: 'Space Mono', category: 'Code' },
+
+  // System Fallbacks
+  { value: 'system-ui, -apple-system, sans-serif', label: 'System Default', category: 'System' },
 ];
 
 const FONT_WEIGHT_OPTIONS = [
@@ -44,15 +61,31 @@ const FONT_WEIGHT_OPTIONS = [
 
 // Map of font families to their available weights
 const FONT_WEIGHTS_BY_FAMILY = {
+  // Modern Sans-Serif (full range)
+  'var(--font-inter), sans-serif': [300, 400, 500, 600, 700, 800, 900],
+  'var(--font-poppins), sans-serif': [300, 400, 500, 600, 700, 800, 900],
+  'var(--font-montserrat), sans-serif': [300, 400, 500, 600, 700, 800, 900],
+  'var(--font-outfit), sans-serif': [300, 400, 500, 600, 700, 800, 900],
+  'var(--font-dm-sans), sans-serif': [400, 500, 700],
+  'var(--font-work-sans), sans-serif': [300, 400, 500, 600, 700, 800, 900],
+  'var(--font-plus-jakarta), sans-serif': [300, 400, 500, 600, 700, 800],
+
+  // Elegant Serif
+  'var(--font-playfair), serif': [400, 500, 600, 700, 800, 900],
+  'var(--font-merriweather), serif': [300, 400, 700, 900],
+  'var(--font-lora), serif': [400, 500, 600, 700],
+
+  // Bold Display
+  'var(--font-bebas-neue), sans-serif': [400],
+  'var(--font-oswald), sans-serif': [300, 400, 500, 600, 700],
+  'var(--font-righteous), sans-serif': [400],
+
+  // Monospace
+  'var(--font-jetbrains-mono), monospace': [300, 400, 500, 600, 700, 800],
+  'var(--font-space-mono), monospace': [400, 700],
+
+  // System Fallback
   'system-ui, -apple-system, sans-serif': [300, 400, 500, 600, 700, 800, 900],
-  'Arial, sans-serif': [400, 700],
-  'Helvetica, sans-serif': [300, 400, 700, 900],
-  'Georgia, serif': [400, 700],
-  'Times New Roman, serif': [400, 700],
-  'Courier New, monospace': [400, 700],
-  'Verdana, sans-serif': [400, 700],
-  'Impact, sans-serif': [400],
-  'Trebuchet MS, sans-serif': [400, 700],
 };
 
 // Get available weights for a font family

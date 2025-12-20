@@ -4,52 +4,60 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Outfit } from 'next/font/google';
-import LeftPanel from '@/app/creator/templates/followers/LeftPanel';
-import RightPanel from '@/app/creator/templates/followers/RightPanel';
+import LeftPanel from './LeftPanel';
+import RightPanel from './RightPanel';
 import UserDropdown from '@/app/components/UserDropdown';
 import MobileMenu from '@/app/components/MobileMenu';
 
 const outfit = Outfit({ subsets: ['latin'] });
 
-export default function Followers({ templateId = 1, templateName = 'Number Milestone' }) {
+export default function GitHubHeatmap({ templateId = 5, templateName = 'GitHub Heatmap' }) {
   const [showMobileEdit, setShowMobileEdit] = useState(false);
   const [config, setConfig] = useState({
-    self: { start: 0, end: 1000, duration: 2, label: 'Followers', labelPosition: 'above' },
-    image: {
-      category: 'none', // none, twitter, custom
-      selectedId: null, // ID from image registry
-      customImageUrl: null, // Base64 or URL for custom uploaded image
-      position: 'top-left' // top-left, top-center, top-right, bottom-left, bottom-center, bottom-right
+    // GitHub Data
+    username: '',
+    timeRange: 'year', // 'month', '3month', '6month', 'year'
+    contributionData: null, // { grid, months, totalContributions, startDate, endDate, weekCount }
+
+    // Animation
+    animationType: 'random', // 'sequential', 'column', 'all-at-once', 'random'
+    animationSpeed: 'medium', // 'slow', 'medium', 'fast'
+
+    // Color Scheme
+    colorScheme: 'github', // 'github', 'heat', 'ocean', 'forest', 'sunset', 'custom'
+    customColors: {
+      level0: '#161b22',
+      level1: '#0e4429',
+      level2: '#006d32',
+      level3: '#26a641',
+      level4: '#39d353',
     },
-    confetti: 'side-burst', // side-burst, cannon, stars
-    music: 'none', // none, upbeat, calm, epic, inspiring
-    // Export settings - single source of truth for video quality
+
+    // Visual Elements
+    showUsername: true,
+    showTotalCount: true,
+    showMonthLabels: true,
+    showDayLabels: true,
+
+    // Styling
+    backgroundColor: '#0d1117',
+    textColor: '#c9d1d9',
+    cellSize: 14,
+    cellGap: 3,
+    cornerRadius: 2,
+    font: 'system-ui, -apple-system, sans-serif', // Default font
+
+    // Export Settings
     export: {
-      width: 1920,
-      height: 1080,
+      width: 1200,
+      height: 675, // 16:9 for horizontal video (Twitter/social media)
       fps: 60,
-      confettiDuration: 8 // seconds
+      duration: 15, // Increased to 15s
     },
-    style: {
-      font: 'Outfit',
-      background: {
-        type: 'solid',
-        color1: '#252525',
-        color2: '#1a1a1a',
-        direction: 'to bottom right'
-      },
-      text: {
-        type: 'gradient',
-        color1: '#c49300', // blue-400
-        color2: '#f97316', // purple-600
-        direction: 'to right'
-      }
-    }
   });
 
   return (
     <main className={`flex flex-col lg:flex-row min-h-screen lg:h-screen lg:overflow-hidden ${outfit.className}`}>
-      {/* Mobile Menu */}
       <MobileMenu />
 
       {/* Desktop Recommendation Banner - Mobile Only */}
@@ -57,19 +65,16 @@ export default function Followers({ templateId = 1, templateName = 'Number Miles
         💡 <span className="font-medium">Best viewed on desktop</span> for the full experience
       </div>
 
-      {/* Mobile Edit Panel - Slide-in */}
+      {/* Mobile Edit Panel */}
       {showMobileEdit && (
         <>
-          {/* Backdrop */}
           <div
             className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
             onClick={() => setShowMobileEdit(false)}
           />
-          {/* Slide-in Panel */}
           <div className="lg:hidden fixed inset-y-0 left-0 w-[85%] max-w-[400px] bg-card border-r border-border shadow-2xl z-50 flex flex-col animate-in slide-in-from-left duration-300">
-            {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <h2 className="text-lg font-semibold">Edit Video</h2>
+              <h2 className="text-lg font-semibold">Edit Heatmap</h2>
               <button
                 onClick={() => setShowMobileEdit(false)}
                 className="p-2 rounded-lg hover:bg-muted/50 transition-colors"
@@ -79,7 +84,6 @@ export default function Followers({ templateId = 1, templateName = 'Number Miles
                 </svg>
               </button>
             </div>
-            {/* Content */}
             <div className="flex-1 overflow-y-auto px-6 py-4">
               <LeftPanel
                 config={config}
@@ -92,9 +96,8 @@ export default function Followers({ templateId = 1, templateName = 'Number Miles
         </>
       )}
 
-      {/* Left Panel: Configuration - Desktop Only */}
+      {/* Left Panel - Desktop Only */}
       <div className="hidden lg:flex lg:w-[400px] lg:h-screen border-r border-border bg-card flex-col flex-shrink-0">
-        {/* Logo */}
         <div className="sticky top-0 bg-card z-10 px-8 py-6 border-b border-border">
           <Link href="/" className="group inline-block">
             <Image
@@ -108,7 +111,6 @@ export default function Followers({ templateId = 1, templateName = 'Number Miles
           </Link>
         </div>
 
-        {/* Main Content - Scrollable */}
         <div className="flex-1 overflow-y-auto px-8 py-6">
           <LeftPanel
             config={config}
@@ -118,7 +120,6 @@ export default function Followers({ templateId = 1, templateName = 'Number Miles
           />
         </div>
 
-        {/* User Dropdown - Desktop Only */}
         <div className="sticky bottom-0 bg-card border-t border-border px-6 py-3">
           <UserDropdown position="top" />
         </div>
@@ -137,13 +138,11 @@ export default function Followers({ templateId = 1, templateName = 'Number Miles
 
       {/* Right Panel: Preview */}
       <div className="flex-1 flex items-center justify-center relative lg:overflow-hidden bg-background min-h-[600px] lg:min-h-0">
-        {/* Ambient Background Effects */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-500/10 blur-[120px]" />
           <div className="absolute top-[40%] -right-[10%] w-[40%] h-[40%] rounded-full bg-purple-500/10 blur-[120px]" />
         </div>
 
-        {/* Grid Pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
         <div className="relative z-10 w-full">

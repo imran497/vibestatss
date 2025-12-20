@@ -146,12 +146,26 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
         <div className="space-y-2">
           <Label className="text-xs">Font Family</Label>
           <div className="grid grid-cols-2 gap-2">
-            {['Outfit', 'Inter', 'Playfair', 'Space Mono'].map((font) => (
+            {[
+              'Inter',
+              'Poppins',
+              'Montserrat',
+              'Outfit',
+              'DM Sans',
+              'Work Sans',
+              'Playfair Display',
+              'Merriweather',
+              'Bebas Neue',
+              'Oswald',
+              'JetBrains Mono',
+              'Space Mono'
+            ].map((font) => (
               <Button
                 key={font}
                 variant={config.style.font === font ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => handleChange('style', 'font', font)}
+                className="text-xs"
               >
                 {font}
               </Button>

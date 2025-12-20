@@ -27,7 +27,8 @@ export function drawFrame({
     VIDEO_WIDTH,
     VIDEO_HEIGHT,
     fontFamily,
-    overlayImage
+    overlayImage,
+    noiseTexture
 }) {
     const textStyle = config.style.text;
     const bgStyle = config.style.background;
@@ -60,6 +61,35 @@ export function drawFrame({
         ctx.fillStyle = bgStyle.color1;
     }
     ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+
+    // 1.1 Draw Texture Overlays
+    ctx.save();
+
+    // Radial gradient overlay (subtle center glow)
+    const radialGradient = ctx.createRadialGradient(
+        VIDEO_WIDTH / 2, VIDEO_HEIGHT / 2, 0,
+        VIDEO_WIDTH / 2, VIDEO_HEIGHT / 2, Math.max(VIDEO_WIDTH, VIDEO_HEIGHT) / 1.5
+    );
+    radialGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
+    radialGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+    radialGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = radialGradient;
+    ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+
+    // Noise texture overlay (matches preview: opacity-20 brightness-100 contrast-150)
+    if (noiseTexture && noiseTexture.complete) {
+        ctx.globalAlpha = 0.2;
+        ctx.filter = 'brightness(1.0) contrast(1.5)';
+        const pattern = ctx.createPattern(noiseTexture, 'repeat');
+        if (pattern) {
+            ctx.fillStyle = pattern;
+            ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+        }
+        ctx.filter = 'none';
+        ctx.globalAlpha = 1.0;
+    }
+
+    ctx.restore();
 
     // 2. Draw Label (if exists) with animation
     const hasLabel = config.self.label;

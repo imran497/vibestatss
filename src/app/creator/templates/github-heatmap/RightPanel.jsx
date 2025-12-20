@@ -1,50 +1,42 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Download, RefreshCcw } from 'lucide-react';
 import VideoBox from './VideoBox';
 import { recordVideo } from './video-recorder';
 
-export default function RightPanel({ config, fonts }) {
-  const previewRef = useRef(null);
-  const [isExporting, setIsExporting] = useState(false);
+export default function RightPanel({ config }) {
   const [resetKey, setResetKey] = useState(0);
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async () => {
     if (isExporting) return;
+
+    if (!config.contributionData) {
+      alert('Please fetch GitHub contributions before exporting.');
+      return;
+    }
+
     setIsExporting(true);
+    console.log('🎬 Starting export...');
 
     try {
-      console.log('🎬 Starting MP4 video generation...');
-      console.log('Config:', config);
-
       const blob = await recordVideo(config);
-
-      console.log('✅ Video generated successfully!');
-      console.log('Blob details:', {
-        size: blob.size,
-        type: blob.type,
-        readable: blob.size > 0
-      });
-
-      if (blob.size === 0) {
-        throw new Error('Generated video is empty (0 bytes)');
-      }
 
       // Download the video
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `verified-followers-${Date.now()}.mp4`;
+      a.download = `github-heatmap-${config.username}-${Date.now()}.mp4`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("❌ Export failed:", err);
+      console.error('❌ Export failed:', err);
 
       if (err.message === 'MP4_NOT_SUPPORTED' || err.message?.includes('Video Encoder') || err.message?.includes('VideoEncoder')) {
-        alert('Video export is only available on desktop browsers.\n\nPlease use Chrome, Edge, or Firefox on a desktop/laptop to export your video.');
+        alert('Video export is only available on desktop browsers.\\n\\nPlease use Chrome, Edge, or Firefox on a desktop/laptop to export your video.');
       } else {
-        alert(`Export failed: ${err.message}\n\nCheck console for details.`);
+        alert(`Export failed: ${err.message}\\n\\nCheck console for details.`);
       }
     } finally {
       setIsExporting(false);
@@ -52,35 +44,16 @@ export default function RightPanel({ config, fonts }) {
     }
   };
 
-  // Calculate if aspect ratio is vertical (portrait)
-  const isVertical = config.export.height > config.export.width;
-  const aspectRatio = config.export.width / config.export.height;
-
   return (
     <div className="flex flex-col items-center gap-6 lg:gap-8 w-full h-full justify-center px-4 py-8 lg:py-0">
       {/* Card Glow Effect */}
-      <div
-        className={`relative group w-full h-auto ${
-          isVertical
-            ? 'max-w-[280px] lg:max-w-[320px] max-h-[70vh]'
-            : 'max-w-[600px] lg:max-w-[650px]'
-        }`}
-      >
-        <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl lg:rounded-[2rem] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+      <div className="relative group w-full h-auto max-w-5xl">
+        {/* Glow */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
 
-        <div
-          ref={previewRef}
-          className="w-full rounded-2xl lg:rounded-[1.8rem] shadow-2xl overflow-hidden relative ring-1 ring-white/10"
-          style={{
-            backgroundColor: config.colors.background,
-            aspectRatio: aspectRatio,
-          }}
-        >
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent"></div>
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
-
-          <VideoBox config={config} fonts={fonts} key={resetKey} />
+        {/* Preview */}
+        <div key={resetKey} className="relative">
+          <VideoBox config={config} />
         </div>
       </div>
 
@@ -96,7 +69,7 @@ export default function RightPanel({ config, fonts }) {
 
         <button
           onClick={handleExport}
-          disabled={isExporting}
+          disabled={isExporting || !config.contributionData}
           className="group relative px-6 lg:px-8 py-3 lg:py-4 bg-white text-black rounded-full font-bold text-base lg:text-lg shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-10 transition-opacity rounded-full"></div>
