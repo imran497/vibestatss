@@ -200,7 +200,7 @@ export default function LandingPage() {
                             transition={{ duration: 0.6, delay: 0.1 }}
                             className="inline-block text-gray-900"
                         >
-                            Turn Your Stats Into
+                            Turn Anything Into
                         </motion.span>
                         <br />
                         <motion.span
@@ -209,7 +209,7 @@ export default function LandingPage() {
                             transition={{ duration: 0.6, delay: 0.2 }}
                             className="inline-block relative"
                         >
-                            <span className="text-gray-900">Celebration </span>
+                            <span className="text-gray-900">Engaging </span>
                             <span className="relative inline-block">
                                 <span className="text-gray-900">Videos</span>
                                 <motion.span
@@ -228,7 +228,7 @@ export default function LandingPage() {
                         transition={{ duration: 0.6, delay: 0.3 }}
                         className="text-lg md:text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed"
                     >
-                        Create stunning, animated videos of your GitHub contributions, milestones, and achievements in seconds. No design skills required.
+                        Announce launches, celebrate milestones, visualize stats, or share updates with stunning animated videos. Built for creators and developers.
                     </motion.p>
 
                     <motion.div

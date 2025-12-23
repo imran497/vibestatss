@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, TrendingUp, Check, BadgeCheck, BarChart3, Type, GitBranch, Crown } from 'lucide-react';
+import { X, TrendingUp, Check, BadgeCheck, BarChart3, Type, GitBranch, Crown, Rocket } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { useAuth } from '@/app/hooks/useAuth';
 import FollowerCountPreview from '../templateModalPreview/FollowerCountPreview';
@@ -45,6 +45,14 @@ const AVAILABLE_TEMPLATES = [
     name: 'GitHub Heatmap',
     description: 'Animated GitHub contribution heatmap with bubble pop effects',
     icon: GitBranch,
+    isActive: true,
+    isPremium: true,
+  },
+  {
+    id: 6,
+    name: 'Launch Announcement',
+    description: 'Create stunning product launch videos for any platform',
+    icon: Rocket,
     isActive: true,
     isPremium: true,
   },
@@ -242,6 +250,34 @@ export default function TemplateSelectorModal({ isOpen, onClose, currentTemplate
                               />
                             );
                           })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Launch Announcement Preview */}
+                    {template.id === 6 && (
+                      <div className="flex items-center justify-center h-full p-6">
+                        <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 w-full max-w-[85%]">
+                          <div className="flex flex-col items-center gap-2">
+                            {/* Product */}
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-lg bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
+                                V
+                              </div>
+                              <span className="text-lg font-bold text-gray-900">VibeStatss</span>
+                            </div>
+
+                            {/* On Text */}
+                            <span className="text-xs text-gray-600 font-semibold">on</span>
+
+                            {/* Platform */}
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-lg bg-orange-500 flex items-center justify-center text-white text-xs font-bold">
+                                P
+                              </div>
+                              <span className="text-lg font-bold text-gray-900">Product Hunt</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
