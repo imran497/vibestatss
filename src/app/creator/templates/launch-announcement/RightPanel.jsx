@@ -175,11 +175,8 @@ export default function RightPanel({ config }) {
       let t;
       if (elapsed < 5500) {
         t = easeOutCubic((elapsed - 2500) / 3000);
-      } else if (elapsed < 13000) {
-        t = 1;
       } else {
-        const exitT = Math.min(1, (elapsed - 13000) / 2000);
-        t = 1 - exitT;
+        t = 1;
       }
 
       styles.product = {
@@ -213,6 +210,7 @@ export default function RightPanel({ config }) {
             backgroundColor: isMounted ? config.colors.background : '#f3f4f6',
             fontFamily: config.font
           }}
+          suppressHydrationWarning
         >
           {!isMounted ? (
             <div className="text-gray-400 z-10">Loading preview...</div>
@@ -247,8 +245,9 @@ export default function RightPanel({ config }) {
                   <div
                     style={{ ...animStyles.screen1, fontWeight: config.fontWeight }}
                     className="absolute inset-0 flex items-center justify-center"
+                    suppressHydrationWarning
                   >
-                    <h1 className="text-5xl font-bold" style={{ color: config.colors.text, fontWeight: config.fontWeight }}>
+                    <h1 className="text-5xl font-bold" style={{ color: config.colors.text, fontWeight: config.fontWeight }} suppressHydrationWarning>
                       {config.type === 'launching' ? 'Launching' : 'Featuring'}
                     </h1>
                   </div>
@@ -259,6 +258,7 @@ export default function RightPanel({ config }) {
                     <div
                       style={animStyles.product}
                       className="flex items-center gap-3"
+                      suppressHydrationWarning
                     >
                       {config.product.logo ? (
                         <img src={config.product.logo} alt={config.product.name} className="w-12 h-12 object-contain" />
@@ -267,7 +267,7 @@ export default function RightPanel({ config }) {
                           {config.product.name.charAt(0)}
                         </div>
                       )}
-                      <h2 className="text-3xl font-bold" style={{ color: config.colors.text, fontWeight: config.fontWeight }}>
+                      <h2 className="text-3xl font-bold" style={{ color: config.colors.text, fontWeight: config.fontWeight }} suppressHydrationWarning>
                         {config.product.name}
                       </h2>
                     </div>
@@ -276,8 +276,9 @@ export default function RightPanel({ config }) {
                     <div
                       style={{ ...animStyles.text, fontWeight: config.fontWeight }}
                       className=""
+                      suppressHydrationWarning
                     >
-                      <p className="text-xl font-semibold" style={{ color: config.colors.secondary, fontWeight: config.fontWeight }}>
+                      <p className="text-xl font-semibold" style={{ color: config.colors.secondary, fontWeight: config.fontWeight }} suppressHydrationWarning>
                         on
                       </p>
                     </div>
@@ -286,6 +287,7 @@ export default function RightPanel({ config }) {
                     <div
                       style={animStyles.platform}
                       className="flex items-center gap-3"
+                      suppressHydrationWarning
                     >
                       {config.platform.logo ? (
                         <img src={config.platform.logo} alt={config.platform.name} className="w-12 h-12 object-contain" />
@@ -294,7 +296,7 @@ export default function RightPanel({ config }) {
                           {config.platform.name.charAt(0)}
                         </div>
                       )}
-                      <h2 className="text-3xl font-bold" style={{ color: config.colors.text, fontWeight: config.fontWeight }}>
+                      <h2 className="text-3xl font-bold" style={{ color: config.colors.text, fontWeight: config.fontWeight }} suppressHydrationWarning>
                         {config.platform.name}
                       </h2>
                     </div>
