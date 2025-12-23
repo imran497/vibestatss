@@ -342,7 +342,7 @@ function drawFrame(ctx, config, progress, productLogo, platformLogo, backgroundI
   const boxHeight = height - (padding * 2);
   const borderRadius = 16 * scaleFactor; // rounded-2xl in preview
 
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
   ctx.beginPath();
   ctx.roundRect(boxX, boxY, boxWidth, boxHeight, borderRadius);
   ctx.fill();
@@ -350,14 +350,14 @@ function drawFrame(ctx, config, progress, productLogo, platformLogo, backgroundI
   const positions = getPositions(elapsed, totalDuration, width, height);
 
   // Scale factor from preview (600px) to export (1920px) = 3.2x
-  // Preview: text-5xl=48px, text-3xl=30px, text-xl=20px, logo=48px
+  // Preview: text-4xl=36px, text-2xl=24px, text-lg=18px, logo=48px
   const scale = width / 600;
   const logoSize = 48 * scale; // 48px in preview → 153.6px at 1920px
-  const productNameFontSize = 30 * scale; // text-3xl → 96px at 1920px
-  const platformNameFontSize = 30 * scale; // text-3xl → 96px at 1920px
-  const connectingTextFontSize = 20 * scale; // text-xl → 64px at 1920px
-  const typeTextFontSize = 48 * scale; // text-5xl → 153.6px at 1920px
-  const itemGap = 16 * scale; // gap-4 → 51.2px at 1920px
+  const productNameFontSize = 24 * scale; // text-2xl → 76.8px at 1920px
+  const platformNameFontSize = 24 * scale; // text-2xl → 76.8px at 1920px
+  const connectingTextFontSize = 18 * scale; // text-lg → 57.6px at 1920px
+  const typeTextFontSize = 36 * scale; // text-4xl → 115.2px at 1920px
+  const itemGap = 24 * scale; // gap-6 → 76.8px at 1920px (increased spacing)
   const logoTextGap = 12 * scale; // gap-3 → 38.4px at 1920px
 
   const cx = width / 2;
@@ -387,7 +387,7 @@ function drawFrame(ctx, config, progress, productLogo, platformLogo, backgroundI
 
     const offsetX = positions.product.offsetX || 0;
     // Position product line above center, with proper gap spacing
-    const productY = cy - (productNameFontSize / 2 + itemGap + connectingTextFontSize / 2);
+    const productY = cy - (productNameFontSize / 2 + itemGap + connectingTextFontSize / 2) - (12 * scale); // Move up slightly
 
     // Measure text width to calculate total width
     ctx.font = `${config.fontWeight || 'bold'} ${productNameFontSize}px ${fontFamily}`;
@@ -450,7 +450,7 @@ function drawFrame(ctx, config, progress, productLogo, platformLogo, backgroundI
 
     const offsetX = positions.platform.offsetX || 0;
     // Position platform line below center, with proper gap spacing
-    const platformY = cy + (connectingTextFontSize / 2 + itemGap + platformNameFontSize / 2);
+    const platformY = cy + (connectingTextFontSize / 2 + itemGap + platformNameFontSize / 2) + (12 * scale); // Move down slightly
 
     // Measure text width to calculate total width
     ctx.font = `${config.fontWeight || 'bold'} ${platformNameFontSize}px ${fontFamily}`;

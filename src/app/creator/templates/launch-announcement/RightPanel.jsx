@@ -247,7 +247,7 @@ export default function RightPanel({ config }) {
                     className="absolute inset-0 flex items-center justify-center"
                     suppressHydrationWarning
                   >
-                    <h1 className="text-5xl font-bold" style={{ color: config.colors.text, fontWeight: config.fontWeight }} suppressHydrationWarning>
+                    <h1 className="text-4xl font-bold" style={{ color: config.colors.text, fontWeight: config.fontWeight }} suppressHydrationWarning>
                       {config.type === 'launching' ? 'Launching' : 'Featuring'}
                     </h1>
                   </div>
@@ -267,7 +267,7 @@ export default function RightPanel({ config }) {
                           {config.product.name.charAt(0)}
                         </div>
                       )}
-                      <h2 className="text-3xl font-bold" style={{ color: config.colors.text, fontWeight: config.fontWeight }} suppressHydrationWarning>
+                      <h2 className="text-2xl font-bold" style={{ color: config.colors.text, fontWeight: config.fontWeight }} suppressHydrationWarning>
                         {config.product.name}
                       </h2>
                     </div>
@@ -278,7 +278,7 @@ export default function RightPanel({ config }) {
                       className=""
                       suppressHydrationWarning
                     >
-                      <p className="text-xl font-semibold" style={{ color: config.colors.secondary, fontWeight: config.fontWeight }} suppressHydrationWarning>
+                      <p className="text-lg font-semibold" style={{ color: config.colors.secondary, fontWeight: config.fontWeight }} suppressHydrationWarning>
                         on
                       </p>
                     </div>
@@ -296,7 +296,7 @@ export default function RightPanel({ config }) {
                           {config.platform.name.charAt(0)}
                         </div>
                       )}
-                      <h2 className="text-3xl font-bold" style={{ color: config.colors.text, fontWeight: config.fontWeight }} suppressHydrationWarning>
+                      <h2 className="text-2xl font-bold" style={{ color: config.colors.text, fontWeight: config.fontWeight }} suppressHydrationWarning>
                         {config.platform.name}
                       </h2>
                     </div>
