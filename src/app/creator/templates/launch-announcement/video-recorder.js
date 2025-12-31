@@ -114,12 +114,21 @@ export async function recordVideo(config) {
     console.log('✓ Background image loaded:', backgroundImage ? 'SUCCESS' : 'FAILED');
   }
 
+  // Setup canvas with optimal settings for text rendering
   const canvas = document.createElement("canvas");
   canvas.width = VIDEO_WIDTH;
   canvas.height = VIDEO_HEIGHT;
-  const ctx = canvas.getContext("2d", { alpha: false });
+  const ctx = canvas.getContext("2d", {
+    alpha: false,
+    willReadFrequently: false,
+    desynchronized: false // Ensure synchronous rendering for quality
+  });
+
+  // Optimal text rendering settings
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
+  ctx.textRendering = 'optimizeLegibility'; // Better text rendering
+  ctx.fontKerning = 'normal'; // Enable font kerning
 
   return await exportMP4(canvas, ctx, config, productLogo, platformLogo, backgroundImage, fontFamily);
 }
@@ -175,9 +184,11 @@ async function exportMP4(canvas, ctx, config, productLogo, platformLogo, backgro
       codec,
       width: VIDEO_WIDTH,
       height: VIDEO_HEIGHT,
-      bitrate: 10000000,
+      bitrate: 25_000_000, // Twitter max is 25Mbps - use maximum for best quality
       framerate: FRAME_RATE,
-      hardwareAcceleration: 'no-preference'
+      hardwareAcceleration: 'no-preference',
+      latencyMode: 'quality', // Prioritize quality over speed
+      bitrateMode: 'constant' // Constant bitrate for consistent quality
     };
 
     const support = await VideoEncoder.isConfigSupported(config);
