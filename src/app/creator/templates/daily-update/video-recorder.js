@@ -92,9 +92,11 @@ export async function recordVideo(config) {
       codec,
       width: VIDEO_WIDTH,
       height: VIDEO_HEIGHT,
-      bitrate: 5_000_000,
+      bitrate: 25_000_000, // Twitter max is 25Mbps - use maximum for best quality
       framerate: FRAME_RATE,
-      hardwareAcceleration: 'no-preference'
+      hardwareAcceleration: 'no-preference',
+      latencyMode: 'quality', // Prioritize quality over speed
+      bitrateMode: 'constant' // Constant bitrate for consistent quality
     };
 
     const support = await VideoEncoder.isConfigSupported(testConfig);
@@ -114,17 +116,21 @@ export async function recordVideo(config) {
   console.log('✓ Using codec:', codecConfig.codec);
   videoEncoder.configure(codecConfig);
 
-  // Setup canvas
+  // Setup canvas with optimal settings for text rendering
   const canvas = document.createElement('canvas');
   canvas.width = VIDEO_WIDTH;
   canvas.height = VIDEO_HEIGHT;
   const ctx = canvas.getContext('2d', {
     alpha: false,
-    willReadFrequently: false
+    willReadFrequently: false,
+    desynchronized: false // Ensure synchronous rendering for quality
   });
 
+  // Optimal text rendering settings - critical for small text
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
+  ctx.textRendering = 'geometricPrecision'; // Better for small text
+  ctx.fontKerning = 'normal'; // Enable font kerning
 
   // Preload fonts used in slides
   const fontsToLoad = new Set();
@@ -363,6 +369,13 @@ export async function recordVideo(config) {
     const baseFontSize = (slide.fontSize || 60) * scaleFactor;
     const fontFamily = getCanvasFontFamily(slide.fontFamily || 'system-ui, -apple-system, sans-serif');
     const fontWeight = slide.fontWeight || 700;
+
+    // Log warning for small text that might be blurry on social media
+    if (frameIndex === 0 && baseFontSize < 80) {
+      console.warn(`⚠️ Font size ${Math.round(baseFontSize)}px may appear blurry on Twitter. Consider using ${Math.round(slide.fontSize * 1.5)}px+ in preview for better quality.`);
+    }
+
+    // Set font with optimal rendering
     ctx.font = `${fontWeight} ${baseFontSize}px ${fontFamily}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -423,8 +436,28 @@ export async function recordVideo(config) {
       textGradient.addColorStop(0, config.textColors[0]);
       textGradient.addColorStop(1, config.textColors[1]);
       ctx.fillStyle = textGradient;
+      ctx.strokeStyle = textGradient;
     } else {
       ctx.fillStyle = config.textColors[0];
+      ctx.strokeStyle = config.textColors[0];
+    }
+
+    // Add subtle text stroke for better clarity on Twitter (social media platforms compress heavily)
+    // For small text (< 100px), use thinner stroke or no stroke to avoid muddiness
+    const strokeWidth = baseFontSize < 100 ? Math.max(0.5, baseFontSize * 0.005) : baseFontSize * 0.01;
+    ctx.lineWidth = strokeWidth;
+    ctx.lineJoin = 'round';
+    ctx.miterLimit = 2;
+
+    // For very small text, skip stroke entirely and use shadow for definition
+    const useStroke = baseFontSize >= 60;
+
+    if (!useStroke) {
+      // Use subtle shadow instead of stroke for small text
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.shadowBlur = 2;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
     }
     const emojiSize = (slide.emojiSize || 60) * scaleFactor;
     const emojiSpacing = 20 * scaleFactor; // Space between emoji and text
@@ -488,6 +521,9 @@ export async function recordVideo(config) {
 
           // Draw all fully visible words
           if (visibleWords.length > 0) {
+            if (useStroke) {
+              ctx.strokeText(visibleWords.join(' '), 0, y); // Draw stroke first
+            }
             ctx.fillText(visibleWords.join(' '), 0, y);
           }
         }
@@ -497,10 +533,19 @@ export async function recordVideo(config) {
       // Normal rendering for all other animations
       for (const line of lines) {
         if (line) {
+          if (useStroke) {
+            ctx.strokeText(line, 0, y); // Draw stroke first for sharper text
+          }
           ctx.fillText(line, 0, y);
         }
         y += lineHeight;
       }
+    }
+
+    // Clear shadow after text rendering
+    if (!useStroke) {
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
     }
 
     // Draw emoji (bottom position)
@@ -549,7 +594,8 @@ export async function recordVideo(config) {
       timestamp,
       duration: 1_000_000 / FRAME_RATE,
     });
-    videoEncoder.encode(videoFrame, { keyFrame: frameIndex % 150 === 0 });
+    // More frequent keyframes (every 60 frames = 1 second) for better Twitter quality
+    videoEncoder.encode(videoFrame, { keyFrame: frameIndex % 60 === 0 });
     videoFrame.close();
 
     // Progress logging
