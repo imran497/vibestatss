@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Layers, ChevronRight, Plus, Trash2, ChevronDown, Sparkles, ArrowUp, ArrowDown, ZoomIn, Zap, X, Eye, Upload } from 'lucide-react';
+import Image from 'next/image';
+import { Layers, Plus, Trash2, Sparkles, ArrowUp, ArrowDown, ZoomIn, Zap, X, Eye, Upload } from 'lucide-react';
 import { Label } from '@/app/components/ui/label';
 import { Input } from '@/app/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Switch } from '@/app/components/ui/switch';
+import TemplateCarousel from '@/app/creator/common/TemplateCarousel';
 import TemplateSelectorModal from '@/app/creator/common/TemplateSelectorModal';
 import ColorPicker from '@/app/components/common/ColorPicker';
 import EmojiPicker from 'emoji-picker-react';
@@ -210,8 +212,8 @@ const wordVariants = {
 };
 
 export default function LeftPanel({ config, setConfig, templateId, templateName }) {
-  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [editingSlide, setEditingSlide] = useState(null);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [previewKey, setPreviewKey] = useState(0);
   const [customIcon, setCustomIcon] = useState(null);
 
@@ -241,30 +243,6 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
     setConfig(prev => ({ ...prev, [field]: value }));
   };
 
-  // Update global background and propagate to slides without custom backgrounds
-  const updateGlobalBackground = (field, value) => {
-    setConfig(prev => {
-      const updates = { [field]: value };
-
-      // Update slides that don't have custom backgrounds
-      if (field === 'bgColors' || field === 'bgIsGradient') {
-        updates.textSlides = prev.textSlides.map(slide => {
-          if (slide.hasCustomBg) return slide; // Keep custom backgrounds
-
-          // Update slides following global background
-          if (field === 'bgColors') {
-            return { ...slide, bgColors: [...value] };
-          } else if (field === 'bgIsGradient') {
-            return { ...slide, bgIsGradient: value };
-          }
-          return slide;
-        });
-      }
-
-      return { ...prev, ...updates };
-    });
-  };
-
   const addTextSlide = (copyFromPrevious = false) => {
     let newSlide;
 
@@ -282,18 +260,13 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
         id: Date.now(),
         text: 'New Slide',
         animation: 'fade',
-        textColors: ['#FFFFFF', '#FFFFFF'],
-        isGradient: false,
         duration: 2,
         fontSize: 35,
         fontFamily: 'system-ui, -apple-system, sans-serif',
         fontWeight: 700,
-        bgColors: [...config.bgColors], // Copy current global background
-        bgIsGradient: config.bgIsGradient,
-        hasCustomBg: false, // Track if background has been customized
-        emoji: '', // Emoji character
-        emojiSize: 60, // Emoji size (30-120)
-        emojiPosition: 'top', // 'top' or 'bottom'
+        emoji: '',
+        emojiSize: 60,
+        emojiPosition: 'top',
       };
     }
 
@@ -374,26 +347,235 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
       />
 
       <div className="space-y-6">
-        {/* Template Type Selection */}
-        <div className="space-y-2">
-          <Label className="font-medium flex items-center gap-2">
-            <Layers size={16} className="text-primary" /> Template Type
-          </Label>
-          <button
-            onClick={() => setIsTemplateModalOpen(true)}
-            className="w-full bg-muted hover:bg-muted/80 p-3 rounded-lg flex items-center justify-between transition-colors group"
-          >
-            <span className="font-medium">{templateName}</span>
-            <ChevronRight size={16} className="text-muted-foreground group-hover:translate-x-1 transition-transform" />
-          </button>
+        {/* Template Carousel */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label className="font-medium text-sm flex items-center gap-2">
+              <Layers size={16} className="text-primary" /> Template
+            </Label>
+            <button
+              onClick={() => setIsTemplateModalOpen(true)}
+              className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
+            >
+              Show all
+            </button>
+          </div>
+          <TemplateCarousel currentTemplate={templateId} />
         </div>
 
-        {/* Template Info */}
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold">{templateName}</h2>
-          <p className="text-sm text-muted-foreground">
-            Create animated text videos with custom styling and effects
-          </p>
+        {/* Background Settings */}
+        <div className="space-y-4 p-4 rounded-lg border border-border bg-card/50">
+          <h3 className="font-semibold text-sm">Background</h3>
+
+          {/* Background Type Toggle */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => updateConfig('backgroundType', 'image')}
+              className={`px-4 py-2 rounded-md border transition-colors ${
+                config.backgroundType === 'image'
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border hover:border-primary'
+              }`}
+            >
+              Image
+            </button>
+            <button
+              onClick={() => updateConfig('backgroundType', 'gradient')}
+              className={`px-4 py-2 rounded-md border transition-colors ${
+                config.backgroundType === 'gradient'
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border hover:border-primary'
+              }`}
+            >
+              Gradient
+            </button>
+          </div>
+
+          {/* Background Image Selection */}
+          {config.backgroundType === 'image' && (
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">Select Background</Label>
+              <div className="grid grid-cols-5 gap-2">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => updateConfig('backgroundImage', num)}
+                    className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all ${
+                      config.backgroundImage === num
+                        ? 'border-primary ring-2 ring-primary'
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <Image
+                      src={`/abstract/${num}.jpg`}
+                      alt={`Background ${num}`}
+                      fill
+                      className="object-cover"
+                      sizes="80px"
+                      quality={60}
+                      priority={config.backgroundImage === num}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Gradient Controls */}
+          {config.backgroundType === 'gradient' && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="bgGradient" className="text-sm">Use Gradient</Label>
+                <Switch
+                  id="bgGradient"
+                  checked={config.bgIsGradient}
+                  onCheckedChange={(checked) => updateConfig('bgIsGradient', checked)}
+                />
+              </div>
+
+              {config.bgIsGradient && (
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Gradient Presets</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {GRADIENT_PRESETS.map(preset => (
+                      <button
+                        key={preset.name}
+                        type="button"
+                        onClick={() => {
+                          const colors = preset.colors || generateRandomGradient();
+                          updateConfig('bgColors', colors);
+                        }}
+                        className="h-8 rounded-md border border-border hover:border-primary transition-colors relative overflow-hidden"
+                        style={
+                          preset.colors
+                            ? {
+                                background: `linear-gradient(135deg, ${preset.colors[0]} 0%, ${preset.colors[1]} 100%)`
+                              }
+                            : {
+                                background: 'linear-gradient(135deg, #FF0080 0%, #FF8C00 20%, #40E0D0 40%, #4169E1 60%, #9370DB 80%, #FF1493 100%)'
+                              }
+                        }
+                        title={preset.name}
+                      >
+                        {!preset.colors && (
+                          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                            ?
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">
+                    {config.bgIsGradient ? 'Color 1' : 'Background Color'}
+                  </Label>
+                  <ColorPicker
+                    color={config.bgColors[0]}
+                    onChange={(color) => {
+                      const newColors = [...config.bgColors];
+                      newColors[0] = color;
+                      updateConfig('bgColors', newColors);
+                    }}
+                  />
+                </div>
+                {config.bgIsGradient && (
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Color 2</Label>
+                    <ColorPicker
+                      color={config.bgColors[1]}
+                      onChange={(color) => {
+                        const newColors = [...config.bgColors];
+                        newColors[1] = color;
+                        updateConfig('bgColors', newColors);
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Global Text Color Settings */}
+        <div className="space-y-4 p-4 rounded-lg border border-border bg-card/50">
+          <h3 className="font-semibold text-sm">Text Color</h3>
+
+          <div className="flex items-center justify-between">
+            <Label htmlFor="textGradient" className="text-sm">Use Gradient</Label>
+            <Switch
+              id="textGradient"
+              checked={config.textIsGradient}
+              onCheckedChange={(checked) => updateConfig('textIsGradient', checked)}
+            />
+          </div>
+
+          {config.textIsGradient && (
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">Gradient Presets</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {TEXT_GRADIENT_PRESETS.map(preset => (
+                  <button
+                    key={preset.name}
+                    type="button"
+                    onClick={() => {
+                      const colors = preset.colors || generateRandomGradient();
+                      updateConfig('textColors', colors);
+                    }}
+                    className="h-8 rounded-md border border-border hover:border-primary transition-colors relative overflow-hidden"
+                    style={
+                      preset.colors
+                        ? {
+                            background: `linear-gradient(135deg, ${preset.colors[0]} 0%, ${preset.colors[1]} 100%)`
+                          }
+                        : {
+                            background: 'linear-gradient(135deg, #FF0080 0%, #FF8C00 20%, #40E0D0 40%, #4169E1 60%, #9370DB 80%, #FF1493 100%)'
+                          }
+                    }
+                    title={preset.name}
+                  >
+                    {!preset.colors && (
+                      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                        ?
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">
+                {config.textIsGradient ? 'Color 1' : 'Text Color'}
+              </Label>
+              <ColorPicker
+                color={config.textColors[0]}
+                onChange={(color) => {
+                  const newColors = [...config.textColors];
+                  newColors[0] = color;
+                  updateConfig('textColors', newColors);
+                }}
+              />
+            </div>
+            {config.textIsGradient && (
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Color 2</Label>
+                <ColorPicker
+                  color={config.textColors[1]}
+                  onChange={(color) => {
+                    const newColors = [...config.textColors];
+                    newColors[1] = color;
+                    updateConfig('textColors', newColors);
+                  }}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Text Slides */}
@@ -465,27 +647,25 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
         const currentAnimation = ANIMATION_OPTIONS.find(opt => opt.value === editingSlide.animation) || ANIMATION_OPTIONS[0];
         const AnimIcon = currentAnimation.Icon;
 
-        const textStyle = editingSlide.isGradient
+        // Use global text colors
+        const textStyle = config.textIsGradient
           ? {
-              backgroundImage: `linear-gradient(135deg, ${editingSlide.textColors[0]} 0%, ${editingSlide.textColors[1]} 100%)`,
+              backgroundImage: `linear-gradient(135deg, ${config.textColors[0]} 0%, ${config.textColors[1]} 100%)`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
             }
           : {
-              color: editingSlide.textColors[0],
+              color: config.textColors[0],
             };
 
-        // Use slide background colors (initialized with global by default)
-        const activeBgColors = editingSlide.bgColors || config.bgColors;
-        const activeBgIsGradient = editingSlide.bgIsGradient !== undefined ? editingSlide.bgIsGradient : config.bgIsGradient;
-
-        const bgStyle = activeBgIsGradient
+        // Use global background colors
+        const bgStyle = config.bgIsGradient
           ? {
-              background: `linear-gradient(135deg, ${activeBgColors[0]} 0%, ${activeBgColors[1]} 100%)`,
+              background: `linear-gradient(135deg, ${config.bgColors[0]} 0%, ${config.bgColors[1]} 100%)`,
             }
           : {
-              backgroundColor: activeBgColors[0],
+              backgroundColor: config.bgColors[0],
             };
 
         return (
@@ -522,14 +702,9 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
                         if (sourceSlide) {
                           const styleCopy = {
                             animation: sourceSlide.animation,
-                            textColors: [...sourceSlide.textColors],
-                            isGradient: sourceSlide.isGradient,
                             fontSize: sourceSlide.fontSize,
                             fontFamily: sourceSlide.fontFamily,
                             fontWeight: sourceSlide.fontWeight,
-                            bgColors: sourceSlide.bgColors ? [...sourceSlide.bgColors] : [...config.bgColors],
-                            bgIsGradient: sourceSlide.bgIsGradient !== undefined ? sourceSlide.bgIsGradient : config.bgIsGradient,
-                            hasCustomBg: sourceSlide.hasCustomBg,
                             emoji: sourceSlide.emoji,
                             emojiSize: sourceSlide.emojiSize,
                             emojiPosition: sourceSlide.emojiPosition,
@@ -614,181 +789,6 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
                       </Select>
                     </div>
 
-                {/* Text Colors */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Text</Label>
-
-                  <div className="flex items-center justify-between mt-3">
-                    <Label htmlFor="edit-gradient" className="text-sm">Use Gradient</Label>
-                    <Switch
-                      id="edit-gradient"
-                      checked={editingSlide.isGradient}
-                      onCheckedChange={(checked) => {
-                        updateSlide(editingSlide.id, 'isGradient', checked);
-                        setEditingSlide({ ...editingSlide, isGradient: checked });
-                      }}
-                    />
-                  </div>
-
-                  {editingSlide.isGradient && (
-                    <div className="space-y-2 mt-2">
-                      <Label className="text-xs text-muted-foreground">Gradient Presets</Label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {TEXT_GRADIENT_PRESETS.map(preset => (
-                          <button
-                            key={preset.name}
-                            type="button"
-                            onClick={() => {
-                              const colors = preset.colors || generateRandomGradient();
-                              updateSlide(editingSlide.id, 'textColors', colors);
-                              setEditingSlide({ ...editingSlide, textColors: colors });
-                            }}
-                            className="h-8 rounded-md border border-border hover:border-primary transition-colors relative overflow-hidden"
-                            style={
-                              preset.colors
-                                ? {
-                                    background: `linear-gradient(135deg, ${preset.colors[0]} 0%, ${preset.colors[1]} 100%)`
-                                  }
-                                : {
-                                    background: 'linear-gradient(135deg, #FF0080 0%, #FF8C00 20%, #40E0D0 40%, #4169E1 60%, #9370DB 80%, #FF1493 100%)'
-                                  }
-                            }
-                            title={preset.name}
-                          >
-                            {!preset.colors && (
-                              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
-                                ?
-                              </span>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-3 mt-2">
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">
-                        {editingSlide.isGradient ? 'Color 1' : 'Text Color'}
-                      </Label>
-                      <ColorPicker
-                        color={editingSlide.textColors[0]}
-                        onChange={(color) => {
-                          const newColors = [...editingSlide.textColors];
-                          newColors[0] = color;
-                          updateSlide(editingSlide.id, 'textColors', newColors);
-                          setEditingSlide({ ...editingSlide, textColors: newColors });
-                        }}
-                      />
-                    </div>
-                    {editingSlide.isGradient && (
-                      <div className="space-y-2">
-                        <Label className="text-xs text-muted-foreground">Color 2</Label>
-                        <ColorPicker
-                          color={editingSlide.textColors[1]}
-                          onChange={(color) => {
-                            const newColors = [...editingSlide.textColors];
-                            newColors[1] = color;
-                            updateSlide(editingSlide.id, 'textColors', newColors);
-                            setEditingSlide({ ...editingSlide, textColors: newColors });
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div className="border-t border-border my-4"></div>
-
-                {/* Background Colors */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Background</Label>
-
-                  <div className="flex items-center justify-between mt-3">
-                    <Label htmlFor="edit-bgGradient" className="text-sm">Use Gradient</Label>
-                    <Switch
-                      id="edit-bgGradient"
-                      checked={editingSlide.bgIsGradient || false}
-                      onCheckedChange={(checked) => {
-                        updateSlide(editingSlide.id, 'bgIsGradient', checked);
-                        updateSlide(editingSlide.id, 'hasCustomBg', true);
-                        setEditingSlide({ ...editingSlide, bgIsGradient: checked, hasCustomBg: true });
-                      }}
-                    />
-                  </div>
-
-                  {editingSlide.bgIsGradient && (
-                    <div className="space-y-2 mt-2">
-                      <Label className="text-xs text-muted-foreground">Gradient Presets</Label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {GRADIENT_PRESETS.map(preset => (
-                          <button
-                            key={preset.name}
-                            type="button"
-                            onClick={() => {
-                              const colors = preset.colors || generateRandomGradient();
-                              updateSlide(editingSlide.id, 'bgColors', colors);
-                              updateSlide(editingSlide.id, 'hasCustomBg', true);
-                              setEditingSlide({ ...editingSlide, bgColors: colors, hasCustomBg: true });
-                            }}
-                            className="h-8 rounded-md border border-border hover:border-primary transition-colors relative overflow-hidden"
-                            style={
-                              preset.colors
-                                ? {
-                                    background: `linear-gradient(135deg, ${preset.colors[0]} 0%, ${preset.colors[1]} 100%)`
-                                  }
-                                : {
-                                    background: 'linear-gradient(135deg, #FF0080 0%, #FF8C00 20%, #40E0D0 40%, #4169E1 60%, #9370DB 80%, #FF1493 100%)'
-                                  }
-                            }
-                            title={preset.name}
-                          >
-                            {!preset.colors && (
-                              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
-                                ?
-                              </span>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-3 mt-2">
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">
-                        {editingSlide.bgIsGradient ? 'Color 1' : 'Background Color'}
-                      </Label>
-                      <ColorPicker
-                        color={(editingSlide.bgColors && editingSlide.bgColors[0]) || config.bgColors[0]}
-                        onChange={(color) => {
-                          const newColors = [...(editingSlide.bgColors || [...config.bgColors])];
-                          newColors[0] = color;
-                          updateSlide(editingSlide.id, 'bgColors', newColors);
-                          updateSlide(editingSlide.id, 'hasCustomBg', true);
-                          setEditingSlide({ ...editingSlide, bgColors: newColors, hasCustomBg: true });
-                        }}
-                      />
-                    </div>
-                    {editingSlide.bgIsGradient && (
-                      <div className="space-y-2">
-                        <Label className="text-xs text-muted-foreground">Color 2</Label>
-                        <ColorPicker
-                          color={(editingSlide.bgColors && editingSlide.bgColors[1]) || config.bgColors[1]}
-                          onChange={(color) => {
-                            const newColors = [...(editingSlide.bgColors || [...config.bgColors])];
-                            newColors[1] = color;
-                            updateSlide(editingSlide.id, 'bgColors', newColors);
-                            updateSlide(editingSlide.id, 'hasCustomBg', true);
-                            setEditingSlide({ ...editingSlide, bgColors: newColors, hasCustomBg: true });
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
                 {/* Duration */}
                 <div className="space-y-2">
                   <Label htmlFor="edit-duration">Duration (seconds)</Label>
@@ -821,13 +821,13 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
                       updateSlide(editingSlide.id, 'fontSize', value);
                       setEditingSlide({ ...editingSlide, fontSize: value });
                     }}
-                    min="30"
+                    min="20"
                     max="80"
                     step="5"
                     className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>30px</span>
+                    <span>20px</span>
                     <span>80px</span>
                   </div>
                 </div>
@@ -1044,94 +1044,118 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
                 <div className="flex-1 bg-muted/30 flex items-center justify-center p-2 border-l border-border">
                   <div className="flex items-center justify-center">
                     <div
-                      className="rounded-lg flex items-center justify-center shadow-lg overflow-hidden"
+                      className="rounded-2xl shadow-lg overflow-hidden relative"
                       style={{
-                        ...bgStyle,
                         width: '680px',
                         height: '380px',
                       }}
                     >
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={previewKey}
-                          initial={animationVariants[editingSlide.animation]?.initial}
-                          animate={animationVariants[editingSlide.animation]?.animate}
-                          transition={{ duration: 0.5 }}
-                          className="w-full h-full flex items-center justify-center px-4"
-                        >
-                          <div className="flex flex-col items-center justify-center gap-4 w-full">
-                            {/* Emoji Top */}
-                            {editingSlide.emoji && editingSlide.emojiPosition === 'top' && (
-                              <div className="text-center" style={{ lineHeight: 1 }}>
-                                {editingSlide.isCustomIcon ? (
-                                  <img
-                                    src={editingSlide.emoji}
-                                    alt="Custom icon"
-                                    style={{
-                                      width: `${editingSlide.emojiSize || 60}px`,
-                                      height: `${editingSlide.emojiSize || 60}px`,
-                                      objectFit: 'contain',
-                                    }}
-                                  />
-                                ) : (
-                                  <span style={{ fontSize: `${editingSlide.emojiSize || 60}px` }}>
-                                    {editingSlide.emoji}
-                                  </span>
-                                )}
-                              </div>
-                            )}
+                      {/* Background - Image or Gradient */}
+                      <div className="absolute inset-0 rounded-2xl overflow-hidden">
+                        {config.backgroundType === 'image' ? (
+                          <>
+                            <img
+                              src={`/abstract/${config.backgroundImage}.jpg`}
+                              alt="Background"
+                              className="absolute inset-0 w-full h-full object-cover rounded-2xl"
+                            />
+                            <div className="absolute inset-0 bg-white/25 backdrop-blur-md rounded-2xl"></div>
+                            <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/20 rounded-2xl"></div>
+                          </>
+                        ) : (
+                          <div
+                            className="absolute inset-0 rounded-2xl"
+                            style={bgStyle}
+                          />
+                        )}
+                      </div>
 
-                            {/* Text */}
-                            <h1
-                              className="text-center whitespace-pre-line break-words w-full"
-                              style={{
-                                ...textStyle,
-                                fontSize: `${editingSlide.fontSize}px`,
-                                fontFamily: editingSlide.fontFamily || 'system-ui, -apple-system, sans-serif',
-                                fontWeight: editingSlide.fontWeight || 700,
-                                lineHeight: 1.3,
-                              }}
+                      {/* White Background Overlay Box */}
+                      <div className="absolute inset-0 p-3 flex items-center justify-center">
+                        <div className="bg-white/80 rounded-2xl w-full h-full flex items-center justify-center px-8 py-6 relative">
+                          <AnimatePresence mode="wait">
+                            <motion.div
+                              key={previewKey}
+                              initial={animationVariants[editingSlide.animation]?.initial}
+                              animate={animationVariants[editingSlide.animation]?.animate}
+                              transition={{ duration: 0.5 }}
+                              className="w-full h-full flex items-center justify-center"
                             >
-                              {editingSlide.animation === 'reveal' ? (
-                                editingSlide.text.split(/(\s+)/).map((word, index) => (
-                                  word.trim() ? (
-                                    <motion.span
-                                      key={index}
-                                      variants={wordVariants}
-                                      style={{ display: 'inline-block', marginRight: '0.25em' }}
-                                    >
-                                      {word}
-                                    </motion.span>
-                                  ) : ' '
-                                ))
-                              ) : (
-                                editingSlide.text || 'Enter your text...'
-                              )}
-                            </h1>
+                              <div className="flex flex-col items-center justify-center gap-4 w-full">
+                                {/* Emoji Top */}
+                                {editingSlide.emoji && editingSlide.emojiPosition === 'top' && (
+                                  <div className="text-center" style={{ lineHeight: 1 }}>
+                                    {editingSlide.isCustomIcon ? (
+                                      <img
+                                        src={editingSlide.emoji}
+                                        alt="Custom icon"
+                                        style={{
+                                          width: `${editingSlide.emojiSize || 60}px`,
+                                          height: `${editingSlide.emojiSize || 60}px`,
+                                          objectFit: 'contain',
+                                        }}
+                                      />
+                                    ) : (
+                                      <span style={{ fontSize: `${editingSlide.emojiSize || 60}px` }}>
+                                        {editingSlide.emoji}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
 
-                            {/* Emoji Bottom */}
-                            {editingSlide.emoji && editingSlide.emojiPosition === 'bottom' && (
-                              <div className="text-center" style={{ lineHeight: 1 }}>
-                                {editingSlide.isCustomIcon ? (
-                                  <img
-                                    src={editingSlide.emoji}
-                                    alt="Custom icon"
-                                    style={{
-                                      width: `${editingSlide.emojiSize || 60}px`,
-                                      height: `${editingSlide.emojiSize || 60}px`,
-                                      objectFit: 'contain',
-                                    }}
-                                  />
-                                ) : (
-                                  <span style={{ fontSize: `${editingSlide.emojiSize || 60}px` }}>
-                                    {editingSlide.emoji}
-                                  </span>
+                                {/* Text */}
+                                <h1
+                                  className="text-center whitespace-pre-line break-words w-full"
+                                  style={{
+                                    ...textStyle,
+                                    fontSize: `${editingSlide.fontSize}px`,
+                                    fontFamily: editingSlide.fontFamily || 'system-ui, -apple-system, sans-serif',
+                                    fontWeight: editingSlide.fontWeight || 700,
+                                    lineHeight: 1.3,
+                                  }}
+                                >
+                                  {editingSlide.animation === 'reveal' ? (
+                                    editingSlide.text.split(/(\s+)/).map((word, index) => (
+                                      word.trim() ? (
+                                        <motion.span
+                                          key={index}
+                                          variants={wordVariants}
+                                          style={{ display: 'inline-block', marginRight: '0.25em' }}
+                                        >
+                                          {word}
+                                        </motion.span>
+                                      ) : ' '
+                                    ))
+                                  ) : (
+                                    editingSlide.text || 'Enter your text...'
+                                  )}
+                                </h1>
+
+                                {/* Emoji Bottom */}
+                                {editingSlide.emoji && editingSlide.emojiPosition === 'bottom' && (
+                                  <div className="text-center" style={{ lineHeight: 1 }}>
+                                    {editingSlide.isCustomIcon ? (
+                                      <img
+                                        src={editingSlide.emoji}
+                                        alt="Custom icon"
+                                        style={{
+                                          width: `${editingSlide.emojiSize || 60}px`,
+                                          height: `${editingSlide.emojiSize || 60}px`,
+                                          objectFit: 'contain',
+                                        }}
+                                      />
+                                    ) : (
+                                      <span style={{ fontSize: `${editingSlide.emojiSize || 60}px` }}>
+                                        {editingSlide.emoji}
+                                      </span>
+                                    )}
+                                  </div>
                                 )}
                               </div>
-                            )}
-                          </div>
-                        </motion.div>
-                      </AnimatePresence>
+                            </motion.div>
+                          </AnimatePresence>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

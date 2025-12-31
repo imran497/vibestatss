@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Layers, ChevronRight, GitBranch, Loader2 } from 'lucide-react';
+import { Layers, GitBranch, Loader2 } from 'lucide-react';
 import { Label } from '@/app/components/ui/label';
 import { Input } from '@/app/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Switch } from '@/app/components/ui/switch';
 import { Button } from '@/app/components/ui/button';
 import TemplateSelectorModal from '@/app/creator/common/TemplateSelectorModal';
+import TemplateCarousel from '@/app/creator/common/TemplateCarousel';
 import ColorPicker from '@/app/components/common/ColorPicker';
 
 // High-quality Google Font options
@@ -253,26 +254,20 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
       />
 
       <div className="space-y-6">
-        {/* Template Type Selection */}
-        <div className="space-y-2">
-          <Label className="font-medium flex items-center gap-2">
-            <Layers size={16} className="text-primary" /> Template Type
-          </Label>
-          <button
-            onClick={() => setIsTemplateModalOpen(true)}
-            className="w-full bg-muted hover:bg-muted/80 p-3 rounded-lg flex items-center justify-between transition-colors group"
-          >
-            <span className="font-medium">{templateName}</span>
-            <ChevronRight size={16} className="text-muted-foreground group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-
-        {/* Template Info */}
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold">{templateName}</h2>
-          <p className="text-sm text-muted-foreground">
-            Animated GitHub contribution heatmap with bubble pop effects
-          </p>
+        {/* Template Carousel */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label className="font-medium text-sm flex items-center gap-2">
+              <Layers size={16} className="text-primary" /> Template
+            </Label>
+            <button
+              onClick={() => setIsTemplateModalOpen(true)}
+              className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
+            >
+              Show all
+            </button>
+          </div>
+          <TemplateCarousel currentTemplate={templateId} />
         </div>
 
         {/* GitHub Data Section */}

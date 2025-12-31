@@ -154,18 +154,21 @@ export async function recordVideo(config) {
     console.log('✓ Fonts loaded');
   }
 
-  // Load noise texture for background
-  const noiseTexture = new Image();
-  noiseTexture.crossOrigin = 'anonymous';
-  noiseTexture.src = 'https://grainy-gradients.vercel.app/noise.svg';
-  await new Promise((resolve) => {
-    noiseTexture.onload = resolve;
-    noiseTexture.onerror = () => {
-      console.warn('Noise texture loading failed, continuing without texture');
-      resolve();
-    };
-  });
-  console.log('✓ Noise texture loaded');
+  // Load background image if needed
+  let backgroundImage = null;
+  if (config.backgroundType === 'image') {
+    backgroundImage = new Image();
+    backgroundImage.crossOrigin = 'anonymous';
+    backgroundImage.src = `/abstract/${config.backgroundImage}.jpg`;
+    await new Promise((resolve) => {
+      backgroundImage.onload = resolve;
+      backgroundImage.onerror = () => {
+        console.warn('Background image loading failed, falling back to gradient');
+        resolve();
+      };
+    });
+    console.log('✓ Background image loaded');
+  }
 
   // Preload custom icons
   const customIconImages = {};
@@ -213,46 +216,62 @@ export async function recordVideo(config) {
 
     const SLIDE_DURATION = (slide.duration || 2) * 1000;
 
-    // Draw background - use slide background (initialized with global by default)
-    const activeBgColors = slide.bgColors || config.bgColors;
-    const activeBgIsGradient = slide.bgIsGradient !== undefined ? slide.bgIsGradient : config.bgIsGradient;
+    // Draw background - Image or Gradient
+    if (config.backgroundType === 'image' && backgroundImage && backgroundImage.complete) {
+      // Draw background image
+      ctx.drawImage(backgroundImage, 0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
 
-    if (activeBgIsGradient) {
-      const gradient = ctx.createLinearGradient(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
-      gradient.addColorStop(0, activeBgColors[0]);
-      gradient.addColorStop(1, activeBgColors[1]);
-      ctx.fillStyle = gradient;
+      // White overlay with blur effect
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+      ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+
+      // Additional gradient overlay
+      const overlayGradient = ctx.createLinearGradient(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+      overlayGradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+      overlayGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+      overlayGradient.addColorStop(1, 'rgba(255, 255, 255, 0.2)');
+      ctx.fillStyle = overlayGradient;
+      ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
     } else {
-      ctx.fillStyle = activeBgColors[0];
-    }
-    ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
-
-    // Draw texture overlays
-    ctx.save();
-
-    // Radial gradient overlay (subtle center glow)
-    const radialGradient = ctx.createRadialGradient(
-      VIDEO_WIDTH / 2, VIDEO_HEIGHT / 2, 0,
-      VIDEO_WIDTH / 2, VIDEO_HEIGHT / 2, Math.max(VIDEO_WIDTH, VIDEO_HEIGHT) / 1.5
-    );
-    radialGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
-    radialGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
-    radialGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    ctx.fillStyle = radialGradient;
-    ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
-
-    // Noise texture overlay (matches preview: opacity-20 brightness-100 contrast-150)
-    if (noiseTexture && noiseTexture.complete) {
-      ctx.globalAlpha = 0.2;
-      ctx.filter = 'brightness(1.0) contrast(1.5)';
-      const pattern = ctx.createPattern(noiseTexture, 'repeat');
-      if (pattern) {
-        ctx.fillStyle = pattern;
-        ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+      // Draw gradient background (use global background)
+      if (config.bgIsGradient) {
+        const gradient = ctx.createLinearGradient(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+        gradient.addColorStop(0, config.bgColors[0]);
+        gradient.addColorStop(1, config.bgColors[1]);
+        ctx.fillStyle = gradient;
+      } else {
+        ctx.fillStyle = config.bgColors[0];
       }
-      ctx.filter = 'none';
-      ctx.globalAlpha = 1.0;
+      ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
     }
+
+    // Draw white overlay box with padding (matches VideoBox.jsx: p-5)
+    const boxScale = VIDEO_HEIGHT / 675; // Base scale for 675px height
+    const padding = 20 * boxScale; // p-5 = 20px
+    const borderRadius = 16 * boxScale; // rounded-2xl = 16px
+
+    // White semi-transparent box
+    ctx.save();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+
+    // Draw rounded rectangle for white box
+    const boxX = padding;
+    const boxY = padding;
+    const boxWidth = VIDEO_WIDTH - (padding * 2);
+    const boxHeight = VIDEO_HEIGHT - (padding * 2);
+
+    ctx.beginPath();
+    ctx.moveTo(boxX + borderRadius, boxY);
+    ctx.lineTo(boxX + boxWidth - borderRadius, boxY);
+    ctx.quadraticCurveTo(boxX + boxWidth, boxY, boxX + boxWidth, boxY + borderRadius);
+    ctx.lineTo(boxX + boxWidth, boxY + boxHeight - borderRadius);
+    ctx.quadraticCurveTo(boxX + boxWidth, boxY + boxHeight, boxX + boxWidth - borderRadius, boxY + boxHeight);
+    ctx.lineTo(boxX + borderRadius, boxY + boxHeight);
+    ctx.quadraticCurveTo(boxX, boxY + boxHeight, boxX, boxY + boxHeight - borderRadius);
+    ctx.lineTo(boxX, boxY + borderRadius);
+    ctx.quadraticCurveTo(boxX, boxY, boxX + borderRadius, boxY);
+    ctx.closePath();
+    ctx.fill();
 
     ctx.restore();
 
@@ -344,19 +363,19 @@ export async function recordVideo(config) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    // Draw text with gradient or solid color
-    if (slide.isGradient) {
+    // Draw text with gradient or solid color (use global text colors)
+    if (config.textIsGradient) {
       const textGradient = ctx.createLinearGradient(
         -VIDEO_WIDTH / 2,
         -VIDEO_HEIGHT / 2,
         VIDEO_WIDTH / 2,
         VIDEO_HEIGHT / 2
       );
-      textGradient.addColorStop(0, slide.textColors[0]);
-      textGradient.addColorStop(1, slide.textColors[1]);
+      textGradient.addColorStop(0, config.textColors[0]);
+      textGradient.addColorStop(1, config.textColors[1]);
       ctx.fillStyle = textGradient;
     } else {
-      ctx.fillStyle = slide.textColors[0];
+      ctx.fillStyle = config.textColors[0];
     }
 
     // Respect newlines in text and wrap long lines
