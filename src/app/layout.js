@@ -123,23 +123,24 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata = {
-  title: "VibeStatss - Create Stunning Social Media Videos",
-  description: "Transform your milestones into engaging videos. Create professional follower count animations, stats videos, and more with customizable templates and stunning effects.",
+  title: "VibeStatss - Turn Anything Into Engaging Videos | Free Video Creator",
+  description: "Create stunning animated videos for social media in seconds. Announce launches, celebrate milestones, visualize stats, or share updates. Built for creators and developers. 100% Free.",
+  keywords: "video creator, social media videos, animated videos, product launch video, milestone video, stats visualization, GitHub contributions, X analytics, free video maker",
   icons: {
     icon: '/favicon.png',
     apple: '/favicon.png',
   },
   openGraph: {
-    title: "VibeStatss - Create Stunning Social Media Videos",
-    description: "Transform your milestones into engaging videos. Create professional follower count animations, stats videos, and more with customizable templates and stunning effects.",
+    title: "VibeStatss - Turn Anything Into Engaging Videos",
+    description: "Create stunning animated videos for social media. Announce launches, celebrate milestones, visualize stats. Built for creators and developers.",
     url: 'https://vibestatss.com',
     siteName: 'VibeStatss',
     images: [
       {
-        url: '/VibeStatss.png',
+        url: `/VibeStatss.png?v=${Date.now()}`,
         width: 2702,
         height: 1406,
-        alt: 'VibeStatss - Create Stunning Social Media Videos',
+        alt: 'VibeStatss - Turn Anything Into Engaging Videos',
       },
     ],
     locale: 'en_US',
@@ -147,9 +148,9 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "VibeStatss - Create Stunning Social Media Videos",
-    description: "Transform your milestones into engaging videos. Create professional follower count animations, stats videos, and more with customizable templates and stunning effects.",
-    images: ['/VibeStatss.png'],
+    title: "VibeStatss - Turn Anything Into Engaging Videos",
+    description: "Create stunning animated videos for social media. Announce launches, celebrate milestones, visualize stats. Built for creators and developers.",
+    images: [`/VibeStatss.png?v=${Date.now()}`],
   },
 };
 

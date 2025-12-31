@@ -161,8 +161,8 @@ export default function TemplateSelectorModal({ isOpen, onClose, currentTemplate
                   className={`
                     relative rounded-xl border-2 overflow-hidden transition-all group
                     ${isSelected
-                      ? 'border-primary ring-2 ring-primary/20'
-                      : 'border-border hover:border-primary/50'
+                      ? 'border-primary bg-primary/5 ring-4 ring-primary/20 shadow-lg shadow-primary/10 opacity-100'
+                      : 'border-muted-foreground/20 bg-card hover:border-primary/60 hover:shadow-md hover:scale-[1.02] opacity-80 hover:opacity-100'
                     }
                     ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                   `}
@@ -180,8 +180,8 @@ export default function TemplateSelectorModal({ isOpen, onClose, currentTemplate
                   {/* Selected Indicator */}
                   {isSelected && (
                     <div className="absolute top-3 right-3 z-10">
-                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-lg">
-                        <Check size={14} className="text-primary-foreground" />
+                      <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-lg ring-2 ring-background">
+                        <Check size={16} className="text-primary-foreground font-bold" strokeWidth={3} />
                       </div>
                     </div>
                   )}
@@ -287,9 +287,16 @@ export default function TemplateSelectorModal({ isOpen, onClose, currentTemplate
 
                     {/* Template Title Overlay */}
                     <div className="absolute bottom-3 left-3 z-10">
-                      <h3 className="text-base font-bold text-white drop-shadow-lg">
-                        {template.name}
-                      </h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base font-bold text-white drop-shadow-lg">
+                          {template.name}
+                        </h3>
+                        {isSelected && (
+                          <span className="px-2 py-0.5 text-xs font-semibold bg-primary text-primary-foreground rounded-full shadow-lg">
+                            Current
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Coming Soon Overlay */}
@@ -300,6 +307,15 @@ export default function TemplateSelectorModal({ isOpen, onClose, currentTemplate
                         </span>
                       </div>
                     )}
+                  </div>
+
+                  {/* Description */}
+                  <div className={`p-3 transition-colors ${
+                    isSelected ? 'bg-primary/5' : 'bg-muted/30 group-hover:bg-muted/50'
+                  }`}>
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {template.description}
+                    </p>
                   </div>
                 </button>
               );

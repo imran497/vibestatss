@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Upload, Sparkles, Palette, Layers, ChevronRight } from 'lucide-react';
+import { Upload, Sparkles, Palette, Layers } from 'lucide-react';
 import Image from 'next/image';
 import { Label } from '@/app/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Button } from '@/app/components/ui/button';
 import TemplateSelectorModal from '@/app/creator/common/TemplateSelectorModal';
+import TemplateCarousel from '@/app/creator/common/TemplateCarousel';
 import ColorPicker from '@/app/components/common/ColorPicker';
 
 // Font options with CSS variables
@@ -119,24 +120,20 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
         currentTemplate={templateId}
       />
 
-      {/* Template Type Selection */}
-      <div className="space-y-2">
-        <Label className="font-medium flex items-center gap-2">
-          <Layers size={16} className="text-primary" /> Template Type
-        </Label>
-        <button
-          onClick={() => setIsTemplateModalOpen(true)}
-          className="w-full bg-muted hover:bg-muted/80 p-3 rounded-lg flex items-center justify-between transition-colors group"
-        >
-          <span className="font-medium">{templateName}</span>
-          <ChevronRight size={16} className="text-muted-foreground group-hover:translate-x-1 transition-transform" />
-        </button>
-      </div>
-
-      {/* Template Header */}
-      <div className="pb-4 border-b border-border">
-        <h1 className="text-2xl font-bold mb-1">{templateName}</h1>
-        <p className="text-sm text-muted-foreground">Create stunning product launch videos</p>
+      {/* Template Carousel */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Label className="font-medium text-sm flex items-center gap-2">
+            <Layers size={16} className="text-primary" /> Template
+          </Label>
+          <button
+            onClick={() => setIsTemplateModalOpen(true)}
+            className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
+          >
+            Show all
+          </button>
+        </div>
+        <TemplateCarousel currentTemplate={templateId} />
       </div>
 
       {/* Product Section */}

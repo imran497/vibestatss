@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 const animationVariants = {
   fade: {
@@ -114,27 +115,25 @@ export default function VideoBox({ config }) {
     );
   }
 
-  // Use slide background (initialized with global by default)
-  const activeBgColors = currentSlide.bgColors || config.bgColors;
-  const activeBgIsGradient = currentSlide.bgIsGradient !== undefined ? currentSlide.bgIsGradient : config.bgIsGradient;
-
-  const bgStyle = activeBgIsGradient
+  // Use global background colors
+  const bgStyle = config.bgIsGradient
     ? {
-        background: `linear-gradient(135deg, ${activeBgColors[0]} 0%, ${activeBgColors[1]} 100%)`,
+        background: `linear-gradient(135deg, ${config.bgColors[0]} 0%, ${config.bgColors[1]} 100%)`,
       }
     : {
-        backgroundColor: activeBgColors[0],
+        backgroundColor: config.bgColors[0],
       };
 
-  const textStyle = currentSlide.isGradient
+  // Use global text colors
+  const textStyle = config.textIsGradient
     ? {
-        backgroundImage: `linear-gradient(135deg, ${currentSlide.textColors[0]} 0%, ${currentSlide.textColors[1]} 100%)`,
+        backgroundImage: `linear-gradient(135deg, ${config.textColors[0]} 0%, ${config.textColors[1]} 100%)`,
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text',
       }
     : {
-        color: currentSlide.textColors[0],
+        color: config.textColors[0],
       };
 
   const animation = animationVariants[currentSlide.animation] || animationVariants.fade;
@@ -145,113 +144,137 @@ export default function VideoBox({ config }) {
         ref={containerRef}
         className="relative overflow-hidden rounded-2xl shadow-2xl"
         style={{
-          ...bgStyle,
           aspectRatio: `${config.export.width} / ${config.export.height}`,
         }}
       >
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent"></div>
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
-
-        {/* Content Container */}
-        <div className="absolute inset-0 flex items-center justify-center px-16 py-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${currentSlideIndex}-${animationKey}`}
-              initial={animation.initial}
-              animate={animation.animate}
-              exit={animation.exit}
-              transition={{ duration: 0.5 }}
-              className="text-center w-full flex flex-col items-center justify-center gap-4"
-            >
-              {/* Emoji Top */}
-              {currentSlide.emoji && currentSlide.emojiPosition === 'top' && (
-                <div className="text-center" style={{ lineHeight: 1 }}>
-                  {currentSlide.isCustomIcon ? (
-                    <img
-                      src={currentSlide.emoji}
-                      alt="Custom icon"
-                      style={{
-                        width: `${(currentSlide.emojiSize || 60) * scaleFactor}px`,
-                        height: `${(currentSlide.emojiSize || 60) * scaleFactor}px`,
-                        objectFit: 'contain',
-                      }}
-                    />
-                  ) : (
-                    <span style={{ fontSize: `${(currentSlide.emojiSize || 60) * scaleFactor}px` }}>
-                      {currentSlide.emoji}
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {/* Text */}
-              <h1
-                className="whitespace-pre-line"
-                style={{
-                  ...textStyle,
-                  fontSize: `${(currentSlide.fontSize || 60) * scaleFactor}px`,
-                  fontFamily: currentSlide.fontFamily || 'system-ui, -apple-system, sans-serif',
-                  fontWeight: currentSlide.fontWeight || 700,
-                  lineHeight: 1.3,
-                }}
-              >
-                {currentSlide.animation === 'reveal' ? (
-                  currentSlide.text.split(/(\s+)/).map((word, index) => (
-                    word.trim() ? (
-                      <motion.span
-                        key={index}
-                        variants={wordVariants}
-                        style={{ display: 'inline-block', marginRight: '0.25em' }}
-                      >
-                        {word}
-                      </motion.span>
-                    ) : ' '
-                  ))
-                ) : (
-                  currentSlide.text
-                )}
-              </h1>
-
-              {/* Emoji Bottom */}
-              {currentSlide.emoji && currentSlide.emojiPosition === 'bottom' && (
-                <div className="text-center" style={{ lineHeight: 1 }}>
-                  {currentSlide.isCustomIcon ? (
-                    <img
-                      src={currentSlide.emoji}
-                      alt="Custom icon"
-                      style={{
-                        width: `${(currentSlide.emojiSize || 60) * scaleFactor}px`,
-                        height: `${(currentSlide.emojiSize || 60) * scaleFactor}px`,
-                        objectFit: 'contain',
-                      }}
-                    />
-                  ) : (
-                    <span style={{ fontSize: `${(currentSlide.emojiSize || 60) * scaleFactor}px` }}>
-                      {currentSlide.emoji}
-                    </span>
-                  )}
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
+        {/* Background - Image or Gradient */}
+        <div className="absolute inset-0 rounded-2xl overflow-hidden">
+          {config.backgroundType === 'image' ? (
+            <>
+              <Image
+                src={`/abstract/${config.backgroundImage}.jpg`}
+                alt="Background"
+                fill
+                className="object-cover rounded-2xl"
+                priority
+                quality={90}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+              />
+              <div className="absolute inset-0 bg-white/25 backdrop-blur-md rounded-2xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/20 rounded-2xl"></div>
+            </>
+          ) : (
+            <div
+              className="absolute inset-0 rounded-2xl"
+              style={bgStyle}
+            />
+          )}
         </div>
 
-        {/* Slide Indicators */}
-        {config.textSlides.length > 1 && (
-          <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2">
-            {config.textSlides.map((_, index) => (
-              <div
-                key={index}
-                className={`h-1.5 rounded-full transition-all ${
-                  index === currentSlideIndex
-                    ? 'w-8 bg-white'
-                    : 'w-1.5 bg-white/40'
-                }`}
-              />
-            ))}
+        {/* White Background Overlay Box */}
+        <div className="absolute inset-0 p-5 flex items-center justify-center">
+          <div className="bg-white/80 rounded-2xl w-full h-full flex items-center justify-center px-16 py-8 relative">
+            {/* Content Container */}
+            <div className="w-full h-full flex items-center justify-center">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${currentSlideIndex}-${animationKey}`}
+                  initial={animation.initial}
+                  animate={animation.animate}
+                  exit={animation.exit}
+                  transition={{ duration: 0.5 }}
+                  className="text-center w-full flex flex-col items-center justify-center gap-4"
+                >
+                  {/* Emoji Top */}
+                  {currentSlide.emoji && currentSlide.emojiPosition === 'top' && (
+                    <div className="text-center" style={{ lineHeight: 1 }}>
+                      {currentSlide.isCustomIcon ? (
+                        <img
+                          src={currentSlide.emoji}
+                          alt="Custom icon"
+                          style={{
+                            width: `${(currentSlide.emojiSize || 60) * scaleFactor}px`,
+                            height: `${(currentSlide.emojiSize || 60) * scaleFactor}px`,
+                            objectFit: 'contain',
+                          }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: `${(currentSlide.emojiSize || 60) * scaleFactor}px` }}>
+                          {currentSlide.emoji}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Text */}
+                  <h1
+                    className="whitespace-pre-line"
+                    style={{
+                      ...textStyle,
+                      fontSize: `${(currentSlide.fontSize || 60) * scaleFactor}px`,
+                      fontFamily: currentSlide.fontFamily || 'system-ui, -apple-system, sans-serif',
+                      fontWeight: currentSlide.fontWeight || 700,
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {currentSlide.animation === 'reveal' ? (
+                      currentSlide.text.split(/(\s+)/).map((word, index) => (
+                        word.trim() ? (
+                          <motion.span
+                            key={index}
+                            variants={wordVariants}
+                            style={{ display: 'inline-block', marginRight: '0.25em' }}
+                          >
+                            {word}
+                          </motion.span>
+                        ) : ' '
+                      ))
+                    ) : (
+                      currentSlide.text
+                    )}
+                  </h1>
+
+                  {/* Emoji Bottom */}
+                  {currentSlide.emoji && currentSlide.emojiPosition === 'bottom' && (
+                    <div className="text-center" style={{ lineHeight: 1 }}>
+                      {currentSlide.isCustomIcon ? (
+                        <img
+                          src={currentSlide.emoji}
+                          alt="Custom icon"
+                          style={{
+                            width: `${(currentSlide.emojiSize || 60) * scaleFactor}px`,
+                            height: `${(currentSlide.emojiSize || 60) * scaleFactor}px`,
+                            objectFit: 'contain',
+                          }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: `${(currentSlide.emojiSize || 60) * scaleFactor}px` }}>
+                          {currentSlide.emoji}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Slide Indicators */}
+            {config.textSlides.length > 1 && (
+              <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2">
+                {config.textSlides.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`h-1.5 rounded-full transition-all ${
+                      index === currentSlideIndex
+                        ? 'w-8 bg-gray-800'
+                        : 'w-1.5 bg-gray-800/40'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

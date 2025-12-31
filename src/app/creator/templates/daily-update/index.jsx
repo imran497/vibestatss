@@ -19,15 +19,10 @@ export default function DailyUpdate({ templateId = 4, templateName = 'Text Video
         id: 1,
         text: 'Day 1 of Building',
         animation: 'fade',
-        textColors: ['#FFFFFF', '#FFFFFF'], // Solid white (both colors same for solid)
-        isGradient: false,
         duration: 2, // Duration for this slide in seconds
         fontSize: 35, // Font size for this slide (20-80)
         fontFamily: 'system-ui, -apple-system, sans-serif',
         fontWeight: 700,
-        bgColors: ['#000000', '#1a1a1a'], // Background for this slide
-        bgIsGradient: false,
-        hasCustomBg: false,
         emoji: '',
         emojiSize: 60,
         emojiPosition: 'top',
@@ -36,15 +31,10 @@ export default function DailyUpdate({ templateId = 4, templateName = 'Text Video
         id: 2,
         text: 'Just Shipped v1.0',
         animation: 'slideUp',
-        textColors: ['#FFD700', '#FFA500'], // Gold gradient
-        isGradient: true,
         duration: 2,
         fontSize: 35,
         fontFamily: 'system-ui, -apple-system, sans-serif',
         fontWeight: 700,
-        bgColors: ['#000000', '#1a1a1a'],
-        bgIsGradient: false,
-        hasCustomBg: false,
         emoji: '',
         emojiSize: 60,
         emojiPosition: 'top',
@@ -53,22 +43,23 @@ export default function DailyUpdate({ templateId = 4, templateName = 'Text Video
         id: 3,
         text: 'Follow for More Updates',
         animation: 'zoom',
-        textColors: ['#FFFFFF', '#FFFFFF'],
-        isGradient: false,
         duration: 2,
         fontSize: 35,
         fontFamily: 'system-ui, -apple-system, sans-serif',
         fontWeight: 700,
-        bgColors: ['#000000', '#1a1a1a'],
-        bgIsGradient: false,
-        hasCustomBg: false,
         emoji: '',
         emojiSize: 60,
         emojiPosition: 'top',
       },
     ],
-    bgColors: ['#000000', '#1a1a1a'], // Background gradient
+    // Global text colors
+    textColors: ['#000000', '#000000'], // Default black text
+    textIsGradient: false,
+    // Global background colors
+    bgColors: ['#000000', '#1a1a1a'],
     bgIsGradient: false,
+    backgroundType: 'image', // 'image' or 'gradient'
+    backgroundImage: 1, // 1-10 for abstract images
     export: {
       width: 1200,
       height: 675, // 16:9 for horizontal video (Twitter)
