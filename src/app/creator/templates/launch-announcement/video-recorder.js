@@ -342,7 +342,7 @@ function drawFrame(ctx, config, progress, productLogo, platformLogo, backgroundI
   const boxHeight = height - (padding * 2);
   const borderRadius = 16 * scaleFactor; // rounded-2xl in preview
 
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.beginPath();
   ctx.roundRect(boxX, boxY, boxWidth, boxHeight, borderRadius);
   ctx.fill();

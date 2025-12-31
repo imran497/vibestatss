@@ -218,10 +218,14 @@ export async function recordVideo(config) {
 
     // Draw background - Image or Gradient
     if (config.backgroundType === 'image' && backgroundImage && backgroundImage.complete) {
-      // Draw background image
+      // Draw background image with blur
+      ctx.save();
+      ctx.filter = 'blur(8px)';
       ctx.drawImage(backgroundImage, 0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+      ctx.filter = 'none';
+      ctx.restore();
 
-      // White overlay with blur effect
+      // White overlay
       ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
       ctx.fillRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
 
@@ -252,7 +256,7 @@ export async function recordVideo(config) {
 
     // White semi-transparent box
     ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
 
     // Draw rounded rectangle for white box
     const boxX = padding;
@@ -363,21 +367,6 @@ export async function recordVideo(config) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    // Draw text with gradient or solid color (use global text colors)
-    if (config.textIsGradient) {
-      const textGradient = ctx.createLinearGradient(
-        -VIDEO_WIDTH / 2,
-        -VIDEO_HEIGHT / 2,
-        VIDEO_WIDTH / 2,
-        VIDEO_HEIGHT / 2
-      );
-      textGradient.addColorStop(0, config.textColors[0]);
-      textGradient.addColorStop(1, config.textColors[1]);
-      ctx.fillStyle = textGradient;
-    } else {
-      ctx.fillStyle = config.textColors[0];
-    }
-
     // Respect newlines in text and wrap long lines
     const maxWidth = VIDEO_WIDTH * 0.85; // Slightly reduced for more padding
     const paragraphs = slide.text.split('\n');
@@ -410,6 +399,33 @@ export async function recordVideo(config) {
     // Calculate text dimensions
     const lineHeight = baseFontSize * 1.3;
     const totalHeight = lines.length * lineHeight;
+
+    // Calculate max text width for gradient
+    let maxTextWidth = 0;
+    for (const line of lines) {
+      if (line) {
+        const metrics = ctx.measureText(line);
+        maxTextWidth = Math.max(maxTextWidth, metrics.width);
+      }
+    }
+
+    // Draw text with gradient or solid color (use global text colors)
+    if (config.textIsGradient) {
+      // Match preview's 135deg gradient (top-left to bottom-right)
+      // Apply gradient relative to text bounds, not full canvas
+      const textBoundsSize = Math.sqrt(maxTextWidth * maxTextWidth + totalHeight * totalHeight);
+      const textGradient = ctx.createLinearGradient(
+        -textBoundsSize / 2,  // Top-left of text bounds
+        -textBoundsSize / 2,
+        textBoundsSize / 2,   // Bottom-right of text bounds
+        textBoundsSize / 2
+      );
+      textGradient.addColorStop(0, config.textColors[0]);
+      textGradient.addColorStop(1, config.textColors[1]);
+      ctx.fillStyle = textGradient;
+    } else {
+      ctx.fillStyle = config.textColors[0];
+    }
     const emojiSize = (slide.emojiSize || 60) * scaleFactor;
     const emojiSpacing = 20 * scaleFactor; // Space between emoji and text
 

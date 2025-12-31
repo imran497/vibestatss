@@ -129,7 +129,8 @@ export function drawFrame({
             ctx.translate(-labelCenterX, -labelCenterY);
         }
 
-        ctx.font = `600 ${labelFontSize}px "${fontFamily}", sans-serif`;
+        const labelFont = `600 ${labelFontSize}px "${fontFamily}", sans-serif`;
+        ctx.font = labelFont;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
@@ -160,7 +161,8 @@ export function drawFrame({
         ctx.translate(-centerX, -centerY);
     }
 
-    ctx.font = `900 ${fontSize}px "${fontFamily}", sans-serif`;
+    const counterFont = `900 ${fontSize}px "${fontFamily}", sans-serif`;
+    ctx.font = counterFont;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 

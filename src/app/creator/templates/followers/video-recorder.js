@@ -3,6 +3,38 @@ import { loadAudio } from "../../../lib/music-library";
 import { calculateDuration, drawFrame, renderFrame } from "./recorder";
 import { getImageById } from "./image-registry";
 
+// Font mapping - single source of truth
+const FONT_MAP = {
+  'Inter': 'Inter',
+  'Poppins': 'Poppins',
+  'Montserrat': 'Montserrat',
+  'Outfit': 'Outfit',
+  'DM Sans': 'DM Sans',
+  'Work Sans': 'Work Sans',
+  'Playfair Display': 'Playfair Display',
+  'Merriweather': 'Merriweather',
+  'Bebas Neue': 'Bebas Neue',
+  'Oswald': 'Oswald',
+  'JetBrains Mono': 'JetBrains Mono',
+  'Space Mono': 'Space Mono'
+};
+
+// Font weight configurations based on what's available in layout.js
+const FONT_WEIGHTS = {
+  'Inter': ['400', '600', '700', '800', '900'],
+  'Poppins': ['400', '600', '700', '800', '900'],
+  'Montserrat': ['400', '600', '700', '800', '900'],
+  'Outfit': ['400', '600', '700', '800', '900'],
+  'DM Sans': ['400', '700'],
+  'Work Sans': ['400', '600', '700', '800', '900'],
+  'Playfair Display': ['400', '600', '700', '800', '900'],
+  'Merriweather': ['400', '700', '900'],
+  'Bebas Neue': ['400'],
+  'Oswald': ['400', '600', '700'],
+  'JetBrains Mono': ['400', '600', '700', '800'],
+  'Space Mono': ['400', '700']
+};
+
 /**
  * Canvas-based video recorder for smooth, high-quality MP4 video generation
  * Uses H.264 codec for maximum compatibility
@@ -21,25 +53,23 @@ export async function recordVideo(config) {
   const { COUNTER_DURATION } = calculateDuration(config, CONFETTI_DURATION);
   const DURATION = COUNTER_DURATION + CONFETTI_DURATION;
 
-  // Wait for fonts to load
-  const fontMap = {
-    'Inter': 'Inter',
-    'Outfit': 'Outfit',
-    'Playfair Display': 'Playfair Display',
-    'Space Mono': 'Space Mono'
-  };
-  const fontFamily = fontMap[config.style.font] || 'Inter';
+  // Get font family from config
+  const fontFamily = FONT_MAP[config.style.font] || 'Inter';
 
   console.log('🔤 Preloading font:', fontFamily);
   try {
-    await Promise.all([
-      document.fonts.load(`400 16px "${fontFamily}"`),
-      document.fonts.load(`600 16px "${fontFamily}"`),
-      document.fonts.load(`700 16px "${fontFamily}"`),
-      document.fonts.load(`800 16px "${fontFamily}"`),
-      document.fonts.load(`900 16px "${fontFamily}"`),
-    ]);
-    console.log('✓ Font loaded:', fontFamily);
+    const weights = FONT_WEIGHTS[fontFamily] || ['400', '700'];
+    await Promise.all(
+      weights.map(weight => document.fonts.load(`${weight} 16px "${fontFamily}"`))
+    );
+
+    // Wait for fonts to be ready
+    await document.fonts.ready;
+
+    // Additional small delay to ensure fonts are fully available
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    console.log('✓ Font loaded:', fontFamily, 'weights:', weights.join(', '));
   } catch (err) {
     console.warn('⚠️ Font loading failed, continuing anyway:', err);
   }
@@ -60,7 +90,7 @@ export async function recordVideo(config) {
     if (imageSrc) {
       overlayImage = new Image();
       overlayImage.src = imageSrc;
-      await new Promise((resolve, reject) => {
+      await new Promise((resolve) => {
         overlayImage.onload = resolve;
         overlayImage.onerror = () => {
           console.warn('Image loading failed, continuing without image');
@@ -275,14 +305,8 @@ async function exportMP4(canvas, ctx, confettiCanvas, fireConfetti, config, over
 
   const DURATION = COUNTER_DURATION + CONFETTI_DURATION;
 
-  // Get font family for rendering
-  const fontMap = {
-    'Inter': 'Inter',
-    'Outfit': 'Outfit',
-    'Playfair Display': 'Playfair Display',
-    'Space Mono': 'Space Mono'
-  };
-  const fontFamily = fontMap[config.style.font] || 'Inter';
+  // Get font family for rendering (uses shared FONT_MAP constant)
+  const fontFamily = FONT_MAP[config.style.font] || 'Inter';
 
   // Load audio if music is selected
   const audio = await loadAudio(config.music);
@@ -444,6 +468,11 @@ async function exportMP4(canvas, ctx, confettiCanvas, fireConfetti, config, over
     }
     if (renderResult.transitionStartFrame !== undefined) {
       transitionStartFrame = renderResult.transitionStartFrame;
+    }
+
+    // Log font info on first frame
+    if (frameNum === 0) {
+      console.log('🎨 First frame - Using font:', fontFamily, 'for text:', content);
     }
 
     // Use template-specific drawFrame function

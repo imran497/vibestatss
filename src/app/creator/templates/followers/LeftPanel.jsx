@@ -148,32 +148,28 @@ export default function LeftPanel({ config, setConfig, templateId, templateName 
         {/* Font Selection */}
         <div className="space-y-2">
           <Label className="text-xs">Font Family</Label>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              'Inter',
-              'Poppins',
-              'Montserrat',
-              'Outfit',
-              'DM Sans',
-              'Work Sans',
-              'Playfair Display',
-              'Merriweather',
-              'Bebas Neue',
-              'Oswald',
-              'JetBrains Mono',
-              'Space Mono'
-            ].map((font) => (
-              <Button
-                key={font}
-                variant={config.style.font === font ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => handleChange('style', 'font', font)}
-                className="text-xs"
-              >
-                {font}
-              </Button>
-            ))}
-          </div>
+          <Select
+            value={config.style.font}
+            onValueChange={(value) => handleChange('style', 'font', value)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a font" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Inter">Inter</SelectItem>
+              <SelectItem value="Poppins">Poppins</SelectItem>
+              <SelectItem value="Montserrat">Montserrat</SelectItem>
+              <SelectItem value="Outfit">Outfit</SelectItem>
+              <SelectItem value="DM Sans">DM Sans</SelectItem>
+              <SelectItem value="Work Sans">Work Sans</SelectItem>
+              <SelectItem value="Playfair Display">Playfair Display</SelectItem>
+              <SelectItem value="Merriweather">Merriweather</SelectItem>
+              <SelectItem value="Bebas Neue">Bebas Neue</SelectItem>
+              <SelectItem value="Oswald">Oswald</SelectItem>
+              <SelectItem value="JetBrains Mono">JetBrains Mono</SelectItem>
+              <SelectItem value="Space Mono">Space Mono</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Background Control */}
